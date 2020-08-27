@@ -3,6 +3,7 @@ public class Loader
 {
     public static void main(String[] args)
     {
+        System.out.println("Lesson 1.");
         System.out.println("================================================");
 
         Cat[] cats = {new Cat(), new Cat(),new Cat(),new Cat(),new Cat(),new Cat()};
@@ -59,6 +60,40 @@ public class Loader
         System.out.println("Кошка № 1 " + cats[0].getStatus() + ";");
 
         System.out.println("================================================");
+
+        System.out.println("Lesson 2.");
+        System.out.println("================================================");
+
+        System.out.println("- 1.:");
+
+        Cat vaska = new Cat();
+        System.out.println("Создана новая кошка: Cat vaska;");
+        System.out.println("Вес кошки Cat vaska равен: " + vaska.getWeight() + ";");
+
+        System.out.println("================================================");
+        System.out.println("- 2.:");
+
+        vaska.feed(150.0);
+        System.out.println("Покормили Cat vaska на 150 г;");
+        System.out.println("Вес Cat vaska равен: " + vaska.getWeight() + ";");
+
+        System.out.println("================================================");
+        System.out.println("- 3.:");
+
+        System.out.println("Cat vaska пошёл в туалет:");
+        for (int i = 0; i < 3; i++) {
+            vaska.pee();
+        }
+
+        System.out.println("Вес Cat vaska равен: " + vaska.getWeight() + ";");
+
+        System.out.println("================================================");
+        System.out.println("- 4.:");
+
+        System.out.println("Cat vaska всего съел " + vaska.getFeedingWeight() + " г;");
+
+        System.out.println("================================================");
+
 
     }
 }

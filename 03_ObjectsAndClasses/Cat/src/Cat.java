@@ -3,6 +3,7 @@ public class Cat
 {
     private double originWeight;
     private double weight;
+    private double feedingWeight;
 
     private double minWeight;
     private double maxWeight;
@@ -13,6 +14,7 @@ public class Cat
         originWeight = weight;
         minWeight = 1000.0;
         maxWeight = 9000.0;
+        feedingWeight = 0.0;
 
     }
 
@@ -24,18 +26,28 @@ public class Cat
 
     public void feed(Double amount)
     {
+        feedingWeight += amount;
         weight = weight + amount;
     }
 
     public void drink(Double amount)
     {
+        feedingWeight += amount;
         weight = weight + amount;
+    }
+
+    public void pee()
+    {
+        weight -= 100.0;
+        System.out.println("burble-burble-burble..");
     }
 
     public Double getWeight()
     {
         return weight;
     }
+
+    public Double getFeedingWeight() {return feedingWeight;}
 
     public String getStatus()
     {
@@ -52,4 +64,6 @@ public class Cat
             return "Playing";
         }
     }
+
+
 }
