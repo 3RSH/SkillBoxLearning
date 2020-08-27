@@ -153,10 +153,44 @@ public class Loader
 
         System.out.println("================================================");
 
+        System.out.println("Lesson 7.");
+        System.out.println("================================================");
+
+        System.out.println("Счётчик живых кошек: " + Cat.getCount() + ";");
+
+        System.out.print("Создаём новую кошку Cat murka, копируя её с Cat vaska, " +
+                "через специальный конструктор класса Cat: ");
+        Cat murka = new Cat(vaska);
+        System.out.println(vaska != murka ? "кошки разные;" : "одна и та же кошка;");
+        System.out.println("Счётчик живых кошек: " + Cat.getCount() + ";");
+        System.out.print("Перезаписываем в Cat murka, ещё одну копию с Cat vaska, " +
+                "через специальный метод класса Loader, который использует геттеры и сеттеры: ");
+        murka = copyCat(vaska);
+        System.out.println(vaska != murka ? "кошки разные;" : "одна и та же кошка;");
+        System.out.println("Счётчик живых кошек: " + Cat.getCount() + ";");
+
+        System.out.println("================================================");
+
+        System.out.println("Теперь у нас в памяти сидит первая копия Cat vaska " +
+                "с которой теперь ничего сделать нельзя. )))");
+
+        System.out.println("================================================");
     }
 
     private static Cat getKitten()
     {
         return new Cat(1100.0);
+    }
+
+    private static Cat copyCat(Cat cat)
+    {
+        Cat nCat = new Cat();
+        nCat.setOriginWeight(cat.getOriginWeight());
+        nCat.setWeight(cat.getWeight());
+        nCat.setFeedingWeight(cat.getFeedingWeight());
+        nCat.setMinWeight(cat.getMinWeight());
+        nCat.setMaxWeight(cat.getMaxWeight());
+        nCat.setColor(cat.getColor());
+        return nCat;
     }
 }

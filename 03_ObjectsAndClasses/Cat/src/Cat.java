@@ -10,11 +10,24 @@ public class Cat
     private double originWeight;
     private double weight;
     private double feedingWeight;
-
     private double minWeight;
     private double maxWeight;
-
     private Color color;
+
+    public void setOriginWeight(double originWeight) { this.originWeight = originWeight; }
+    public double getOriginWeight() { return originWeight; }
+
+    public void setWeight(double weight) { this.weight = weight; }
+    public double getWeight() { return weight; }
+
+    public void setFeedingWeight(double feedingWeight) { this.feedingWeight = feedingWeight; }
+    public double getFeedingWeight() { return feedingWeight; }
+
+    public void setMinWeight(double minWeight) { this.minWeight = minWeight; }
+    public double getMinWeight() { return minWeight; }
+
+    public void setMaxWeight(double maxWeight) { this.maxWeight = maxWeight; }
+    public double getMaxWeight() { return maxWeight; }
 
     public void setColor(Color color) { this.color = color; }
     public Color getColor() { return color; }
@@ -36,6 +49,17 @@ public class Cat
         minWeight = MIN_WEIGHT;
         maxWeight = MAX_WEIGHT;
         feedingWeight = 0.0;
+        catCount++;
+    }
+
+    public Cat(Cat cat)
+    {
+        this.originWeight = cat.originWeight;
+        this.weight = cat.weight;
+        this.feedingWeight = cat.feedingWeight;
+        this.minWeight = cat.minWeight;
+        this.maxWeight = cat.maxWeight;
+        setColor(cat.getColor());
         catCount++;
     }
 
@@ -78,10 +102,6 @@ public class Cat
             if (!isAlive()) catCount--;
         }
     }
-
-    public Double getWeight() { return weight; }
-
-    public Double getFeedingWeight() { return feedingWeight; }
 
     public String getStatus()
     {
