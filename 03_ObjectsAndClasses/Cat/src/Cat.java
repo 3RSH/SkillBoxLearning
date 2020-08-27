@@ -24,6 +24,16 @@ public class Cat
         catCount++;
     }
 
+    public Cat(double weight)
+    {
+        this.weight = weight;
+        originWeight = weight;
+        minWeight = MIN_WEIGHT;
+        maxWeight = MAX_WEIGHT;
+        feedingWeight = 0.0;
+        catCount++;
+    }
+
     public static int getCount(){ return catCount; }
 
     public boolean isAlive() { return (weight >= minWeight) && (weight <= maxWeight); }

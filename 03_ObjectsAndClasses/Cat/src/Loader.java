@@ -138,5 +138,25 @@ public class Loader
         System.out.println(";");
 
         System.out.println("================================================");
+
+        System.out.println("Lesson 5.");
+        System.out.println("================================================");
+
+        Cat[] kittens = {getKitten(), getKitten(), getKitten()};
+        System.out.println("Создано три котёнка:");
+
+        for (int i = 0; i < kittens.length; i++)
+        {
+            System.out.println("Вес котёнка № " + (i + 1) + " равен: " +
+                    kittens[i].getWeight() + ";");
+        }
+
+        System.out.println("================================================");
+
+    }
+
+    private static Cat getKitten()
+    {
+        return new Cat(1100.0);
     }
 }
