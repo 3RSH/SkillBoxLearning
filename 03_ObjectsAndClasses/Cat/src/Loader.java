@@ -94,6 +94,49 @@ public class Loader
 
         System.out.println("================================================");
 
+        System.out.println("Lesson 3.");
+        System.out.println("================================================");
 
+        System.out.println("Общее количество живых кошек: " + Cat.getCount());
+
+        System.out.println("================================================");
+
+        System.out.println("*");
+
+        System.out.println("Статус кошки № 1: " + cats[0].getStatus() + " - она мертва;");
+        System.out.println("Вес мёртвой кошки № 1 равен: " + cats[0].getWeight() + ";");
+        System.out.print("Мёртвая кошка № 1 говорит: ");
+        cats[0].meow();
+        System.out.println(";");
+        System.out.println("Покормили мёртвую кошку № 1 на 100 г;");
+        cats[0].feed(100.0);
+        System.out.println("Вес мёртвой кошки № 1: равен " + cats[0].getWeight() + ";");
+        System.out.println("Попоили мёртвую кошку № 1 на 100 г;");
+        cats[0].drink(100.0);
+        System.out.println("Вес мёртвой кошки № 1: равен " + cats[0].getWeight() + ";");
+        System.out.print("Пытаемся заставить мёртвую кошку № 1 пойти в туалет: ");
+        cats[0].pee();
+        System.out.println(";");
+
+        System.out.println("================================================");
+
+        System.out.println("*");
+
+        System.out.println("Статус кошки № 6: " + cats[5].getStatus() + " - она мертва;");
+        System.out.println("Вес мёртвой кошки № 6 равен: " + cats[5].getWeight() + ";");
+        System.out.print("Мёртвая кошка № 6 говорит: ");
+        cats[5].meow();
+        System.out.println(";");
+        System.out.println("Покормили мёртвую кошку № 6 на 100 г;");
+        cats[5].feed(100.0);
+        System.out.println("Вес мёртвой кошки № 6: равен " + cats[5].getWeight() + ";");
+        System.out.println("Попоили мёртвую кошку № 6 на 100 г;");
+        cats[5].drink(100.0);
+        System.out.println("Вес мёртвой кошки № 6: равен " + cats[5].getWeight() + ";");
+        System.out.print("Пытаемся заставить мёртвую кошку № 6 пойти в туалет: ");
+        cats[5].pee();
+        System.out.println(";");
+
+        System.out.println("================================================");
     }
 }
