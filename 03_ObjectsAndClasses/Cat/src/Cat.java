@@ -1,6 +1,8 @@
 
 public class Cat
 {
+    private static int catCount = 0;
+
     private double originWeight;
     private double weight;
     private double feedingWeight;
@@ -15,39 +17,52 @@ public class Cat
         minWeight = 1000.0;
         maxWeight = 9000.0;
         feedingWeight = 0.0;
-
+        catCount++;
     }
+
+    public static int getCount(){ return catCount; }
+
+    public boolean isAlive() { return (weight >= minWeight) && (weight <= maxWeight); }
 
     public void meow()
     {
-        weight = weight - 1;
-        System.out.println("Meow");
+        if (isAlive()) {
+            weight = weight - 1;
+            System.out.println("Meow");
+            if (!isAlive()) catCount--;
+        }
     }
 
     public void feed(Double amount)
     {
-        feedingWeight += amount;
-        weight = weight + amount;
+        if (isAlive()) {
+            feedingWeight += amount;
+            weight = weight + amount;
+            if (!isAlive()) catCount--;
+        }
     }
 
     public void drink(Double amount)
     {
-        feedingWeight += amount;
-        weight = weight + amount;
+        if (isAlive()) {
+            feedingWeight += amount;
+            weight = weight + amount;
+            if (!isAlive()) catCount--;
+        }
     }
 
     public void pee()
     {
-        weight -= 100.0;
-        System.out.println("burble-burble-burble..");
+        if (isAlive()) {
+            weight -= 100.0;
+            System.out.println("burble-burble-burble..");
+            if (!isAlive()) catCount--;
+        }
     }
 
-    public Double getWeight()
-    {
-        return weight;
-    }
+    public Double getWeight() { return weight; }
 
-    public Double getFeedingWeight() {return feedingWeight;}
+    public Double getFeedingWeight() { return feedingWeight; }
 
     public String getStatus()
     {
