@@ -14,6 +14,11 @@ public class Cat
     private double minWeight;
     private double maxWeight;
 
+    private Color color;
+
+    public void setColor(Color color) { this.color = color; }
+    public Color getColor() { return color; }
+
     public Cat()
     {
         weight = 1500.0 + 3000.0 * Math.random();
