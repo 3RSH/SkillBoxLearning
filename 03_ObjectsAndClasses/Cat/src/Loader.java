@@ -175,6 +175,24 @@ public class Loader
                 "с которой теперь ничего сделать нельзя. )))");
 
         System.out.println("================================================");
+        System.out.println("Проверка счётчика кошек при создании и копировании мертвых кошек:");
+        System.out.println("================================================");
+
+        System.out.println("Счётчик живых кошек: " + Cat.getCount() + ";");
+
+        System.out.print("Создаём новую кошку Cat pushok, со смертельным весом - ");
+        Cat pushok = new Cat(10000);
+        System.out.println("Счётчик живых кошек: " + Cat.getCount() + ";");
+
+        System.out.print("Делаем копию Cat pushok, через метод copyCat() -  ");
+        Cat copyCat_1 = copyCat(pushok);
+        System.out.println("Счётчик живых кошек: " + Cat.getCount() + ";");
+
+        System.out.print("Делаем ещё одну копию Cat pushok, через конструктор Cat(Cat cat) - ");
+        Cat copyCat_2 = new Cat(pushok);
+        System.out.println("Счётчик живых кошек: " + Cat.getCount() + ";");
+
+        System.out.println("================================================");
     }
 
     private static Cat getKitten()
@@ -188,9 +206,8 @@ public class Loader
         nCat.setOriginWeight(cat.getOriginWeight());
         nCat.setWeight(cat.getWeight());
         nCat.setFeedingWeight(cat.getFeedingWeight());
-        nCat.setMinWeight(cat.getMinWeight());
-        nCat.setMaxWeight(cat.getMaxWeight());
         nCat.setColor(cat.getColor());
+        nCat.countCtrl();
         return nCat;
     }
 }
