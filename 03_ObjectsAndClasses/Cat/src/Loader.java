@@ -37,7 +37,7 @@ public class Loader
         System.out.println("================================================");
         System.out.println("- 3.:");
 
-        while (cats[5].getStatus() != "Exploded")
+        while (!cats[5].getStatus().equals("Exploded"))
         {
             System.out.println("Покормили кошку № 6 на 500 г;");
             cats[5].feed(500.0);
@@ -50,7 +50,7 @@ public class Loader
         System.out.println("- 4.:");
 
 
-        while (cats[0].getStatus() != "Dead")
+        while (!cats[0].getStatus().equals("Dead"))
         {
             System.out.print("Кошка № 1 говорит: ");
             cats[0].meow();
