@@ -15,19 +15,25 @@ public class Main
         //@TODO: write code here
         Integer sum = 0;
         String str = Integer.toString(number);
-        int[] arr = new int[str.length()];
 
-        for (int i = 0; i < str.length(); i++)
+//        int[] arr = new int[str.length()];
+//
+//        for (int i = 0; i < str.length(); i++)
+//        {
+//            arr[i] = Integer.parseInt(String.valueOf(str.charAt(i)));
+//        }
+//
+//        for (int i: arr)
+//        {
+//            sum += i;
+//        }
+
+        char[] charArr = str.toCharArray();
+
+        for (char c : charArr)
         {
-            arr[i] = Integer.parseInt(String.valueOf(str.charAt(i)));
+            sum += Character.getNumericValue(c);
         }
-
-
-        for (int i: arr)
-        {
-            sum += i;
-        }
-
 
         return sum;
     }
