@@ -5,6 +5,8 @@ public class Main
     public static final int TRUCK_CAPACITY = 12;
     public static final int CONTAINER_CAPACITY = 27;
 
+    public static final int BOX_IN_TRUCK = CONTAINER_CAPACITY * TRUCK_CAPACITY;
+
     public static void main(String[] args)
     {
         Scanner scanner = new Scanner(System.in);
@@ -45,6 +47,9 @@ public class Main
 
         //Альтернативное решение, с использованием остатка отделения ( % )
         altSolution(boxCount);
+
+        //Альтернативное решение от ментора, с использованием остатка отделения ( % )
+        altSolutionByMentor();
 
     }
 
@@ -116,5 +121,45 @@ public class Main
                     "\nНеобходимо:\nгрузовиков - 0 шт." +
                     "\nконтейнеров - 0 шт.");
         }
+    }
+
+    public static void altSolutionByMentor() {
+
+        Scanner scanner = new Scanner(System.in);
+
+        for(;;) {
+            System.out.print("Введите количество ящиков: ");
+
+            if (scanner.hasNextInt()) {
+                int boxCount = scanner.nextInt();
+
+                int containerCount = 0;
+                int truckCount = 0;
+
+                int i = 0;
+
+                while (i < boxCount) {
+
+                    if (i % BOX_IN_TRUCK == 0) {
+                        System.out.println("Грузовик " + ++truckCount);
+                    }
+
+                    if (i % CONTAINER_CAPACITY == 0) {
+                        System.out.println("\tКонтейнер " + ++containerCount);
+                    }
+
+                    System.out.println("\t\tЯщик " + ++i);;
+                }
+
+                System.out.printf("Необходимо Грузовиков: %d, Контейнеров: %d \n", truckCount, containerCount);
+
+            } else {
+                System.out.print("Ошибка! ");
+                scanner.nextLine();
+            }
+
+        }
+
+
     }
 }
