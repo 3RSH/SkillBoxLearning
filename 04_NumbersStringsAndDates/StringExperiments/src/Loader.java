@@ -8,6 +8,8 @@ public class Loader
 
         System.out.println(text);
         System.out.println("Общая сумма чисел в строке: " + getSum(text));
+
+        System.out.println("Общая сумма чисел в строке: " + getSumRegex(text));
     }
 
     //метод извлекает ВСЕ числа из строки, не зависимо от содержимого
@@ -42,6 +44,19 @@ public class Loader
             if (i == (str.length() - 1) && beginIndex != -1) {
                 sumString = str.substring(beginIndex);
                 sum += parseInt(sumString);
+            }
+        }
+        return sum;
+    }
+
+    public static int getSumRegex (String str)
+    {
+        int sum = 0;
+        String[] strings = str.split("[^0-9]");
+
+        for (String s : strings) {
+            if (!s.equals("")) {
+                sum += Integer.parseInt(s);
             }
         }
         return sum;
