@@ -4,6 +4,12 @@ public class Main
 {
     public static void main(String[] args)
     {
+        //originalSolution();
+        regexSolution();
+    }
+
+    public static void originalSolution()
+    {
         Scanner scanner = new Scanner(System.in);
         String[] name = {"", "", ""};
 
@@ -55,6 +61,41 @@ public class Main
             System.out.println(errorMessage());
         }
         System.out.println("Фамилия: " + name[0] + "\nИмя: " + name[1] + "\nОтчество: " + name[2]);
+    }
+
+    public static void regexSolution()
+    {
+        Scanner scanner = new Scanner(System.in);
+
+        while (true) {
+            System.out.print("Введите Фамилию Имя Отчество: ");
+            String fullName = scanner.nextLine();
+
+            String[] name = fullName.split("[^A-zА-я]");
+
+            //проверка количества пробелов
+            if (name.length == 3) {
+
+                //проверка слова на наличие первой заглавных буквы
+                boolean checkCase = true;
+                for (int i = 0; i < name.length; i++) {
+                    int code = name[i].charAt(0);
+                    boolean checkCode = ((code > 64) && (code < 91)) || ((code > 1039) && (code < 1072));
+                    if (checkCase) {
+                        checkCase = checkCode;
+                    }
+                }
+                if (checkCase == false) {
+                    System.out.println(errorMessage());
+                    continue;
+                }
+            } else {
+                System.out.println(errorMessage());
+                continue;
+            }
+            System.out.println("Фамилия: " + name[0] + "\nИмя: " + name[1] + "\nОтчество: " + name[2]);
+            break;
+        }
     }
 
     public static String errorMessage()
