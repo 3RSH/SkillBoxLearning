@@ -1,3 +1,6 @@
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class Main
 {
     public static void main(String[] args)
@@ -5,6 +8,18 @@ public class Main
         String safe = searchAndReplaceDiamonds("Номер > кредитной карты <4008 1234 5678> 8912" +
                 " пользователя <Петрова> Алексея>", "***");
         System.out.println(safe);
+
+        safe = searchAndReplaceDiamondsByRegex("Номер > кредитной карты <4008 1234 5678> 8912" +
+                " пользователя <Петрова> Алексея>", "***");
+        System.out.println(safe);
+    }
+
+    public static String searchAndReplaceDiamondsByRegex(String text, String placeholder)
+    {
+        Pattern pattern = Pattern.compile("<.*?>");
+        Matcher matcher = pattern.matcher(text);
+
+        return matcher.replaceAll(placeholder);
     }
 
     public static String searchAndReplaceDiamonds(String text, String placeholder)
