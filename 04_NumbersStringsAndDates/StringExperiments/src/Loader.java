@@ -52,12 +52,13 @@ public class Loader
     public static int getSumRegex (String str)
     {
         int sum = 0;
-        String[] strings = str.split("[^0-9]");
+        String[] strings = str
+                .replaceAll("[^0-9]+", " ") // заменяем все нечисла на пробелы
+                .trim() // убираем пробелы с начала и конца
+                .split("\\s+"); // разделяем строку по пробелам
 
         for (String s : strings) {
-            if (!s.equals("")) {
-                sum += Integer.parseInt(s);
-            }
+            sum += Integer.parseInt(s);
         }
         return sum;
     }
