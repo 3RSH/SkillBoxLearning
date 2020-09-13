@@ -5,36 +5,20 @@ public class Loader
     public static void main(String[] args)
     {
         Scanner scanner = new Scanner(System.in);
-        StringBuilder phoneNumber = new StringBuilder();
+        String phoneNumber;
 
         while (true)
         {
             System.out.print("Введите номер телефона: ");
             String input = scanner.nextLine();
-            phoneNumber.delete(0, phoneNumber.length());
+            phoneNumber = input.replaceAll("[^\\d]+", "");
 
-            String[] phone = input.split("[^0-9]");
-
-            for (int i = 0; i < phone.length; i++) {
-                phoneNumber.append(phone[i]);
-            }
-
-            //проверки для ввода 11-ти цифр
-            boolean checkLength11 = phoneNumber.length() == 11;
-            boolean checkFirstNum11 = phoneNumber.charAt(0) == '8' || phoneNumber.charAt(0) == '7';
-            boolean checkSecondNum11 = phoneNumber.charAt(1) == '9';
-
-            if (checkLength11 && checkFirstNum11 && checkSecondNum11) {
-                phoneNumber.replace(0, 1 , "7");
+            if (phoneNumber.length() == 10 && phoneNumber.matches("9\\d{9}")) {
+                phoneNumber = phoneNumber.replaceAll("(\\d{9})", "7$1");
                 break;
-            }
-
-            //проверки для ввода 10-ти цифр
-            boolean checkLength10 = phoneNumber.length() == 10;
-            boolean checkFirstNum10 = phoneNumber.charAt(0) == '9';
-
-            if (checkLength10 && checkFirstNum10) {
-                phoneNumber.insert(0, 7);
+            } else if (phoneNumber.length() == 11 && (phoneNumber.matches("89\\d{9}") ||
+            phoneNumber.matches("79\\d{9}"))) {
+                phoneNumber = phoneNumber.replaceAll("\\d(\\d{9})", "7$1");
                 break;
             }
             System.out.println(errorMessage());
