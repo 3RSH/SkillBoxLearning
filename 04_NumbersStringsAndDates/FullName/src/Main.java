@@ -71,28 +71,12 @@ public class Main
             System.out.print("Введите Фамилию Имя Отчество: ");
             String fullName = scanner.nextLine();
 
-            String[] name = fullName.split("[^A-zА-я]");
-
-            //проверка количества пробелов
-            if (name.length == 3) {
-
-                //проверка слова на наличие первой заглавных буквы
-                boolean checkCase = true;
-                for (int i = 0; i < name.length; i++) {
-                    int code = name[i].charAt(0);
-                    boolean checkCode = ((code > 64) && (code < 91)) || ((code > 1039) && (code < 1072));
-                    if (checkCase) {
-                        checkCase = checkCode;
-                    }
-                }
-                if (checkCase == false) {
-                    System.out.println(errorMessage());
-                    continue;
-                }
-            } else {
+            if (!fullName.matches("([A-ZА-Я][A-zА-я]*\\s){2}[A-ZА-Я][A-zА-я]*")) {
                 System.out.println(errorMessage());
                 continue;
             }
+
+            String[] name = fullName.split("\\s");
             System.out.println("Фамилия: " + name[0] + "\nИмя: " + name[1] + "\nОтчество: " + name[2]);
             break;
         }
