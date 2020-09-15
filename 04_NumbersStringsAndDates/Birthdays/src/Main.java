@@ -47,14 +47,18 @@ public class Main
 
         int age = 0;
 
-        Year currentYear = Year.now();
+        LocalDate birthday = LocalDate.of(year, month, day);
+        LocalDate today = LocalDate.now();
 
-        while (year < currentYear.getValue())
+//        while (birthday.isBefore(today))
+//        {
+//            System.out.println(age++ + dateFormat.format(birthday));
+//            birthday = birthday.plusYears(1);
+//        }
+
+        for (LocalDate date = birthday; date.isBefore(today); date = date.plusYears(1))
         {
-            System.out.println(age++ + dateFormat.format(LocalDate.of(year, Month.of(month), day)));
-            year++;
+            System.out.println(age++ + dateFormat.format(date));
         }
-
     }
-
 }
