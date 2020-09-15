@@ -10,6 +10,8 @@ public class Main
     public static final int DAY = 5;
     public static final int MONTH = 11;
     public static final int YEAR = 1984;
+    public static final Locale LOCALE = new Locale("ru", "RUS");
+    public static final String PATTERN_DATE = " - dd.MM.yyyy - EE";
 
     public static void main(String[] args)
     {
@@ -22,8 +24,7 @@ public class Main
 
     public static void getBirthdaysByCalendar(int day, int month, int year)
     {
-        Locale locale = new Locale("ru", "RUS");
-        DateFormat dateFormat = new SimpleDateFormat(" - dd.MM.yyyy - EE", locale);
+        DateFormat dateFormat = new SimpleDateFormat(PATTERN_DATE, LOCALE);
 
         int age = 0;
 
@@ -42,8 +43,7 @@ public class Main
 
     public static void getBirthdaysByJavaTime(int day, int month, int year)
     {
-        Locale locale = new Locale("ru", "RUS");
-        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern(" - dd.MM.yyyy - E", locale);
+        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern(PATTERN_DATE, LOCALE);
 
         int age = 0;
 
