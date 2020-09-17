@@ -50,15 +50,29 @@ public class Main
         LocalDate birthday = LocalDate.of(year, month, day);
         LocalDate today = LocalDate.now();
 
+        //моё решение
 //        while (birthday.isBefore(today))
 //        {
 //            System.out.println(age++ + dateFormat.format(birthday));
 //            birthday = birthday.plusYears(1);
 //        }
 
-        for (LocalDate date = birthday; date.isBefore(today); date = date.plusYears(1))
+//        for (LocalDate date = birthday; date.isBefore(today); date = date.plusYears(1))
+//        {
+//            System.out.println(age++ + dateFormat.format(date));
+//        }
+
+        //решение от ментора
+        while (today.isAfter(birthday.plusYears(age)))
         {
-            System.out.println(age++ + dateFormat.format(date));
+            System.out.println(age + dateFormat.format(birthday.plusYears(age++)));
+        }
+
+        System.out.println("================================================");
+
+        for (age = 0; today.isAfter(birthday.plusYears(age)); age++)
+        {
+            System.out.println(age + dateFormat.format(birthday.plusYears(age)));
         }
     }
 }
