@@ -23,6 +23,7 @@ public class Loader
     public static void getStatistic(float[] array)
     {
         float sum = 0;
+        float average = 0;
         //степень округления результата для вывода float (1 знак после '.')
         float scale = (float) Math.pow(10, 1);
         int goodCount = 0;
@@ -40,8 +41,8 @@ public class Loader
 
         System.out.print("\nСредняя температура: ");
         scale = (float) Math.pow(10, 2); //меняем степень округления (2 знака после '.')
-        sum = Math.round(sum / array.length * scale) / scale; //округляем float перед выводом
-        System.out.println(sum);
+        average = Math.round(sum / array.length * scale) / scale; //округляем float перед выводом
+        System.out.println(average);
 
         System.out.println("Количество здоровых: " + goodCount);
     }
