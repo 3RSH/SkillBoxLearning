@@ -19,11 +19,11 @@ public class Main
         }
 
         //рисуем фигуру (выводим массив)
-        for (int i = 0; i < pic.length; i++)
+        for (String[] rows : pic)
         {
-            for (int j = 0; j < pic[i].length; j++)
+            for (String string : rows)
             {
-                System.out.print(pic[i][j]);
+                System.out.print(string);
             }
             System.out.println();
         }
