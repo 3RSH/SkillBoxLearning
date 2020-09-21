@@ -26,53 +26,44 @@ public class Main
 
     public static void commandProcessing(String cmd)
     {
-        String[] commandParts = cmd.split("\\s", 3);
-        int partsCount = commandParts.length;
+        String[] commandParts = cmd.split("\\s+", 3);
 
         //команда LIST
-        if (commandParts[0].equals(Actions.LIST.toString())) {
+        if (cmd.matches(Actions.LIST.getRegex())) {
 
             list();
 
         //команда ADD
-        } else if (commandParts[0].equals(Actions.ADD.toString()) && partsCount > 1) {
+        } else if (cmd.matches(Actions.ADD_TO_INDEX.getRegex())) {
 
-            if (commandParts[1].matches("\\d+") && partsCount > 2) {
-                add(Integer.parseInt(commandParts[1]), commandParts[2]);
-            } else {
-                StringBuilder data = new StringBuilder();
+            String data = commandParts[2];
+            int index = Integer.parseInt(commandParts[1]);
 
-                for (int i = 1; i < commandParts.length; i++) {
-                    data.append(commandParts[i]).append(" ");
-                }
+            add(index, data);
 
-                add(data);
+        } else if (cmd.matches(Actions.ADD.getRegex())) {
+
+            StringBuilder data = new StringBuilder();
+
+            for (int i = 1; i < commandParts.length; i++) {
+                data.append(commandParts[i]).append(" ");
             }
+
+            add(data);
 
         //команда EDIT
-        } else if (commandParts[0].equals(Actions.EDIT.toString()) && partsCount > 2) {
+        } else if (cmd.matches(Actions.EDIT.getRegex())) {
 
-            if (commandParts[1].matches("\\d+")) {
+            edit(Integer.parseInt(commandParts[1]), commandParts[2]);
 
-                edit(Integer.parseInt(commandParts[1]), commandParts[2]);
-
-            } else {
-                errorMessage();
-            }
 
         //команда DELETE
-        } else if (commandParts[0].equals(Actions.values()[3].toString()) && partsCount > 1) {
+        } else if (cmd.matches(Actions.DELETE.getRegex())) {
 
-            if (commandParts[1].matches("\\d+")) {
-
-                delete(Integer.parseInt(commandParts[1]));
-
-            } else {
-                errorMessage();
-            }
+            delete(Integer.parseInt(commandParts[1]));
 
         //команда EXIT
-        } else if (commandParts[0].equals(Actions.EXIT.toString())){
+        } else if (cmd.matches(Actions.EXIT.getRegex())){
 
             isRun = false;
         } else {
