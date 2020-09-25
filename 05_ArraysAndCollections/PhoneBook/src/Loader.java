@@ -1,185 +1,156 @@
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
-public class Loader
-{
+public class Loader {
 
-    public static final TreeMap<String, String> phoneBook = new TreeMap<>();
+  public static final TreeMap<String, String> phoneBook = new TreeMap<>();
 
-    private static final String NUMBER = "\\+*\\d[-()\\s\\d]+";
-    private static final String NAME = "[A-zА-я]+[-._,/()A-zА-я\\s]*";
-    private static final String ERROR = "Ошибка! Номер указан некорректно.";
+  private static final String PHONE_MASK = "\\+*\\d[-()\\s\\d]+";
+  private static final String NAME_MASK = "[A-zА-я]+[-._,/()A-zА-я\\s]*";
+  private static final String ERROR = "Ошибка! Номер указан некорректно.";
 
-    private static boolean isRun = true;
+  private static boolean isRun = true;
 
-    public static void main(String[] args)
-    {
-        Scanner scanner = new Scanner(System.in);
-        StringBuilder message = new StringBuilder();
+  public static void main(String[] args) {
+    Scanner scanner = new Scanner(System.in);
 
-        while (isRun)
-        {
-            String input = scanner.nextLine();
+    while (isRun) {
+      String input = scanner.nextLine();
 
-            // вывод содержимого базы
-            if (input.equals("LIST")) {
-                printMapByValue();
+      if (input.equals("LIST")) { //вывод содержимого базы
+        printPhoneBook();
+      } else if (input.equals("EXIT")) { //выход из программы
+        exit();
+      } else if (input.matches(PHONE_MASK)) { //обработка ввода номера
+        String phone = clearPhone(input);
 
-            //выход из программы
-            } else if (input.equals("EXIT")) {
-                exit();
-            //обработка ввода номера, соответствующего шаблону
-            } else if (input.matches(NUMBER)) {
-                //приводим к общему формату
-                String number = numFormatting(input);
-
-                //если не приводится, выводим ошибку и завершаем итерацию while
-                if (number.equals(ERROR)) {
-                    System.out.println(number);
-                    continue;
-                }
-
-                //проверяем наличие номера в базе
-                if (hasNumber(number)) {
-                    String name = phoneBook.get(number);
-                    //выводим все записи базы с именем, с которым связан введённый номер
-                    message.append(name).append(" :\n");
-                    for (String key : searchKeys(name))
-                    {
-                        message.append("\t").append(numPrintFormat(key)).append("\n");
-                    }
-                    System.out.print(message);
-                    message.setLength(0);
-                    continue;
-                }
-                //если номера в базе нет, просим указать имя
-                System.out.print("Введите имя: ");
-                input = scanner.nextLine();
-
-                //добавляем новый элемент базы (номер - имя)
-                phoneBook.put(number, input);
-
-            //обработка ввода имени, соответствующего шаблону
-            } else if (input.matches(NAME)) {
-                //проверяем наличие имени в базе
-                if (hasName(input)) {
-                    //выводим все записи базы с таким именем
-                    message.append(input).append(" :\n");
-                    for (String key : searchKeys(input))
-                    {
-                        message.append("\t").append(numPrintFormat(key)).append("\n");
-                    }
-                    System.out.print(message);
-                    message.setLength(0);
-                    continue;
-                }
-                //если имени в базе нет, просим указать номер
-                System.out.print("Введите номер: ");
-                //приводим номер к общему формату
-                String number = numFormatting(scanner.nextLine());
-
-                //если не приводится, выводим ошибку и завершаем итерацию while
-                if (number.equals(ERROR)) {
-                    System.out.println(number);
-                    continue;
-                }
-
-                //проверяем наличие номера в базе
-                if (hasNumber(number)) {
-                    //если такой номер уже есть в базе, сообщаем об этом,
-                    System.out.println("Такой номер уже есть в базе:");
-
-                    //выводим елемент базы с этим номером, и завершаем итерацию while
-                    System.out.println("\t" + phoneBook.get(number) + " : " + numPrintFormat(number));
-                    continue;
-                }
-
-                //добавляем новый элемент базы (номер - имя)
-                phoneBook.put(number, input);
-            }
-        }
-    }
-
-    //вывод phoneBook упорядоченным по значениям (НЕ ПО КЛЮЧАМ)
-    private static void printMapByValue()
-    {
-        TreeSet<String> outputSet = new TreeSet<>();
-        StringBuilder str = new StringBuilder();
-
-        for (String key : phoneBook.keySet())
-        {
-            str.append(phoneBook.get(key)).append(" : ").append(numPrintFormat(key));
-            outputSet.add(str.toString());
-            str.setLength(0);
+        if (phoneIsIncorrect(phone)) {
+          System.out.println(ERROR);
+          continue;
         }
 
-        for (String member : outputSet)
-        {
-            System.out.println(member);
-        }
-    }
+        phone = phoneFormatting(phone);
 
-    //обработка команды выхода из программы
-    private static void exit()
-    {
-        isRun = false;
-    }
-
-    //проверка корректности номера и приведение его к общему формату хранения
-    private static String numFormatting (String str)
-    {
-        str = str.replaceAll("\\D+", "");
-
-        if (str.length() == 11) {
-            str = str.substring(1);
+        if (hasPhone(phone)) {
+          printMember(phoneBook.get(phone));
+          continue;
         }
 
-        if (str.length() == 10 && str.charAt(0) == '9') {
-            return str;
+        System.out.print("Введите имя: ");
+        input = scanner.nextLine();
+
+        phoneBook.put(phone, input);
+      } else if (input.matches(NAME_MASK)) { //обработка ввода имени
+        if (hasName(input)) {
+          printMember(input);
+          continue;
         }
 
-        return ERROR;
-    }
+        System.out.print("Введите номер: ");
+        String phone = clearPhone(scanner.nextLine());
 
-    //форматирование номера для вывода
-    private static String numPrintFormat (String number)
-    {
-        return number.replaceAll("(\\d{3})(\\d{3})(\\d{2})(\\d{2})", "+7 ($1) $2-$3-$4");
-    }
-
-    //проверка наличия номера в базе
-    private static boolean hasNumber(String number)
-    {
-        for (String key : phoneBook.keySet())
-        {
-            if (number.equals(key)) {
-                return true;
-            }
+        if (phoneIsIncorrect(phone)) {
+          System.out.println(ERROR);
+          continue;
         }
-        return false;
+
+        phone = phoneFormatting(phone);
+
+        if (hasPhone(phone)) {
+          System.out.println("Такой номер уже есть в базе:");
+          printMember(phoneBook.get(phone));
+          continue;
+        }
+
+        phoneBook.put(phone, input);
+      }
+    }
+  }
+
+  private static void exit() { //выход из программы
+    isRun = false;
+  }
+
+  private static void printMember(String name) { //вывод информации по контакту
+    StringBuilder message = new StringBuilder();
+
+    message.append(name).append(" :\n");
+
+    for (String phone : searchPhones(name)) {
+      message.append("\t").append(phonePrintFormat(phone)).append("\n");
     }
 
-    //проверка налиичя имени в базе
-    private static boolean hasName(String name)
-    {
-        for (String key : phoneBook.keySet())
-        {
-            if (name.equals(phoneBook.get(key))) {
-                return true;
-            }
-        }
-        return false;
+    message.append("\n");
+    System.out.print(message);
+  }
+
+  private static void printPhoneBook() { //вывод phoneBook по порядку ИМЁН
+    TreeSet<String> outputSet = new TreeSet<>();
+
+    for (Map.Entry<String, String> entry : phoneBook.entrySet()) {
+      outputSet.add(entry.getValue());
     }
 
-    //поиск номеров в базе по имени
-    private static ArrayList<String> searchKeys (String name)
-    {
-        ArrayList<String> keys = new ArrayList<>();
-        for (String key : phoneBook.keySet())
-        {
-            if (name.equals(phoneBook.get(key))) {
-                keys.add(key);
-            }
-        }
-        return keys;
+    for (String member : outputSet) {
+      printMember(member);
     }
+  }
+
+  private static String clearPhone(String phone) { //очистка номера
+    return phone.replaceAll("\\D", "");
+  }
+
+  private static boolean phoneIsIncorrect(String phone) { //проверка номера
+    boolean conditionA = !(phone.length() == 11 && phone.charAt(1) == '9');
+    boolean conditionB = !(phone.length() == 10 && phone.charAt(0) == '9');
+
+    return conditionA && conditionB;
+  }
+
+  private static String phoneFormatting(String num) { //форматирование номера для хранения
+    if (num.length() == 11) {
+      return num.substring(1);
+    }
+
+    return num;
+  }
+
+  private static String phonePrintFormat(String phone) { //форматирование номера для вывода
+    return phone.replaceAll("(\\d{3})(\\d{3})(\\d{2})(\\d{2})", "+7 ($1) $2-$3-$4");
+  }
+
+  private static ArrayList<String> searchPhones(String name) { //поиск номеров по имени
+    ArrayList<String> phones = new ArrayList<>();
+
+    for (Map.Entry<String, String> entry : phoneBook.entrySet()) {
+      if (name.equals(entry.getValue())) {
+        phones.add(entry.getKey());
+      }
+    }
+
+    return phones;
+  }
+
+  private static boolean hasPhone(String phone) { //проверка наличия номера в phoneBook
+    for (Map.Entry<String, String> entry : phoneBook.entrySet()) {
+      if (phone.equals(entry.getKey())) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  private static boolean hasName(String name) { //проверка налиичя имени в phoneBook
+    for (Map.Entry<String, String> entry : phoneBook.entrySet()) {
+      if (name.equals(entry.getValue())) {
+        return true;
+      }
+    }
+
+    return false;
+  }
 }
