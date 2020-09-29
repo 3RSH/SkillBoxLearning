@@ -12,7 +12,7 @@ public class Main {
   public static final String[] NUMBERS = {"111", "222", "333", "444",
       "555", "666", "777", "888", "999"};
   public static final char[] REGION_AMPLIFICATION = {' ', '1', '7'};
-//  public static final String[] NUMBER_BY_PARTS = new String[6];
+  public static final String[] NUMBER_BY_PARTS = new String[6];
 
   //КОНСТАНТА для проверки ввода
   public static final String NUMBER_MASK = "[А-Я]\\d{3}[А-Я]{2}\\d{2,3}";
@@ -25,15 +25,15 @@ public class Main {
   public static final String FAIL = " не найден, поиск занял ";
 
   public static void main(String[] args) {
-//    long t = System.currentTimeMillis();
-    ArrayList<String> plates = vipNumber(new ArrayList<>());
-//    t = System.currentTimeMillis() - t;
-//    System.out.println("vipNumber - " + t + " мс");
-//    t = System.currentTimeMillis();
-//    ArrayList<String> platesStr = vipNumberStr(new ArrayList<>());
-//    t = System.currentTimeMillis() - t;
-//    System.out.println("vipNumberStr - " + t + " мс");
-//    compareAndCheckArrays(plates, platesStr);
+    long t = System.currentTimeMillis();
+    ArrayList<String> plates = vipNumber();
+    t = System.currentTimeMillis() - t;
+    System.out.println("vipNumber - " + t + " мс");
+    t = System.currentTimeMillis();
+    ArrayList<String> platesStr = vipNumberStr();
+    t = System.currentTimeMillis() - t;
+    System.out.println("vipNumberStr - " + t + " мс");
+    compareAndCheckArrays(plates, platesStr);
     HashSet<String> platesHashSet = new HashSet<>(plates);
     TreeSet<String> platesTreeSet = new TreeSet<>(plates);
     Scanner scanner = new Scanner(System.in);
@@ -94,15 +94,17 @@ public class Main {
     }
   }
 
-//  //сравнение и проверка массивов от разных генераторов
-//  private static void compareAndCheckArrays(ArrayList<String> arr1, ArrayList<String> arr2) {
-//    System.out.println(arr1.equals(arr2) ? "Массивы одинаковы." : "Массивы разные.");
-//    Collections.sort(arr2);
-//    System.out.println(arr1.equals(arr2) ? "Массивы отсортированы." : "Массивы не отсортированы.");
-//  }
+  //сравнение и проверка массивов от разных генераторов
+  private static void compareAndCheckArrays(ArrayList<String> arr1, ArrayList<String> arr2) {
+    System.out.println(arr1.equals(arr2) ? "Массивы одинаковы." : "Массивы разные.");
+    Collections.sort(arr2);
+    System.out.println(arr1.equals(arr2) ? "Массивы отсортированы." : "Массивы не отсортированы.");
+  }
 
   //генерация массива через StringBuilder
-  private static ArrayList<String> vipNumber(ArrayList<String> array) {
+  private static ArrayList<String> vipNumber() {
+    ArrayList<String> array = new ArrayList<>();
+
     for (char firstChar : CHARS) {
       StringBuilder number = new StringBuilder().append(firstChar);
 
@@ -144,46 +146,48 @@ public class Main {
     return array;
   }
 
-//  //генерация массива через String[]
-//  private static ArrayList<String> vipNumberStr(ArrayList<String> array) {
-//    for (char firstChar : CHARS) {
-//      NUMBER_BY_PARTS[0] = String.valueOf(firstChar);
-//
-//      for (String num : NUMBERS) {
-//        NUMBER_BY_PARTS[1] = num;
-//
-//        for (char secondChar : CHARS) {
-//          NUMBER_BY_PARTS[2] = String.valueOf(secondChar);
-//
-//          for (char thirdChar : CHARS) {
-//            NUMBER_BY_PARTS[3] = String.valueOf(thirdChar);
-//
-//            for (char regAmplification : REGION_AMPLIFICATION) {
-//              NUMBER_BY_PARTS[4] = String.valueOf(regAmplification);
-//
-//              for (int region = 1; region < 100; region++) {
-//                StringBuilder number = new StringBuilder();
-//
-//                if ((region / 10) == 0) {
-//                  NUMBER_BY_PARTS[5] = "0" + region;
-//                } else {
-//                  NUMBER_BY_PARTS[5] = String.valueOf(region);
-//                }
-//
-//                for (String str : NUMBER_BY_PARTS) {
-//                  number.append(str);
-//                }
-//
-//                array.add(number.toString());
-//              }
-//            }
-//          }
-//        }
-//      }
-//    }
-//
-//    return array;
-//  }
+  //генерация массива через String[]
+  private static ArrayList<String> vipNumberStr() {
+    ArrayList<String> array = new ArrayList<>();
+
+    for (char firstChar : CHARS) {
+      NUMBER_BY_PARTS[0] = String.valueOf(firstChar);
+
+      for (String num : NUMBERS) {
+        NUMBER_BY_PARTS[1] = num;
+
+        for (char secondChar : CHARS) {
+          NUMBER_BY_PARTS[2] = String.valueOf(secondChar);
+
+          for (char thirdChar : CHARS) {
+            NUMBER_BY_PARTS[3] = String.valueOf(thirdChar);
+
+            for (char regAmplification : REGION_AMPLIFICATION) {
+              NUMBER_BY_PARTS[4] = String.valueOf(regAmplification);
+
+              for (int region = 1; region < 100; region++) {
+                StringBuilder number = new StringBuilder();
+
+                if ((region / 10) == 0) {
+                  NUMBER_BY_PARTS[5] = "0" + region;
+                } else {
+                  NUMBER_BY_PARTS[5] = String.valueOf(region);
+                }
+
+                for (String str : NUMBER_BY_PARTS) {
+                  number.append(str);
+                }
+
+                array.add(number.toString());
+              }
+            }
+          }
+        }
+      }
+    }
+
+    return array;
+  }
 
   //форматирование номера под формат его хранения в массиве
   private static String numFormatting(String num) {
