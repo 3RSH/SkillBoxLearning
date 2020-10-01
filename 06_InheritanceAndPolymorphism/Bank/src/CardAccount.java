@@ -23,7 +23,7 @@ public class CardAccount extends BankAccount {
   //перевод на другой счёт (переопределён)
   @Override
   public boolean send(BankAccount receiver, BigDecimal amount) {
-    if (super.withdraw(amount)) {
+    if (withdraw(amount)) {
       receiver.deposit(amount);
       return true;
     }
