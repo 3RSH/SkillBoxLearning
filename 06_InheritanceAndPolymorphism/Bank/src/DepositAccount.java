@@ -1,42 +1,34 @@
 import java.math.BigDecimal;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
+import java.time.LocalDate;
 
 public class DepositAccount extends BankAccount {
+
+  private static final int TERM_IN_MONTHS = 1; //срок депозита (кол-во месяцев)
+  private static final String ERROR_MESSAGE = "Срок депозита ещё не вышел - снятие невозможно!";
+
+  private LocalDate inputDate; //дата последнего взноса на счёт
 
   //Конструктор
   public DepositAccount(BigDecimal account) {
     super(account);
-    setAccType("ДЕПОЗИТ");
+    inputDate = LocalDate.now();
+  }
+
+  //Внесение на счёт (переопределено)
+  @Override
+  public void deposit(BigDecimal amount) {
+    super.deposit(amount);
+    inputDate = LocalDate.now();
   }
 
   //Снятие со счёта (переопределено)
   @Override
   public boolean withdraw(BigDecimal amount) {
-
-    Calendar currentDate = new GregorianCalendar();
-
-    int day = currentDate.get(Calendar.DAY_OF_MONTH);
-    int depositDay = this.getDateLastIn().get(Calendar.DAY_OF_MONTH);
-
-    int month = currentDate.get(Calendar.MONTH);
-    int depositMonth = this.getDateLastIn().get(Calendar.MONTH);
-
-    int year = currentDate.get(Calendar.YEAR);
-    int depositYear = this.getDateLastIn().get(Calendar.YEAR);
-
-    boolean condition1 = year != depositYear;
-    boolean condition2 = day >= depositDay;
-    boolean condition3 = month > depositMonth;
-
-    boolean situate1 = condition1 && condition2;
-    boolean situate2 = condition2 && condition3;
-
-    if (situate1 || situate2) {
+    if (LocalDate.now().isAfter(inputDate.plusMonths(TERM_IN_MONTHS))) {
       return super.withdraw(amount);
     }
 
-    System.out.println("Срок депозита ещё не вышел - снятие невозможно!");
+    System.out.println(ERROR_MESSAGE);
     return false;
   }
 }

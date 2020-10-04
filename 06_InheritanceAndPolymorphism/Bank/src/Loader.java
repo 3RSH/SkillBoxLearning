@@ -6,6 +6,13 @@ public class Loader {
 
   private static final HashMap<Integer, BankAccount> accounts = new HashMap<>();
 
+  private static final String ACCOUNT = "BankAccount";
+  private static final String DEPOSIT_ACCOUNT = "DepositAccount";
+  private static final String CARD_ACCOUNT = "CardAccount";
+  private static final String SIMPLE_TYPE = "ПРОСТОЙ";
+  private static final String DEPOSIT_TYPE = "ДЕПОЗИТ";
+  private static final String CARD_TYPE = "КАРТА";
+  private static final String DEFAULT = "";
   private static final String BEGIN = "Введите команду(HELP - список команд): ";
   private static final String HEAD_LIST = "\nСписок счетов: \n";
   private static final String SUCCESS = "Операция прошла успешно.\n";
@@ -19,11 +26,9 @@ public class Loader {
   private static final String ADD_DEPOSIT = "ADD DEPOSIT";
   private static final String ADD_CARD = "ADD CARD";
   private static final String GET_ACCOUNT = "ACC\\s[0-9]+";
-  private static final String ACCOUNT_NAME = "%nСчёт №%d :\n";
   private static final String ACCOUNT_HEAD = "%nСчёт №%d (%s): %s руб.%n\t\t";
-  private static final String ACCOUNT_INFO = "INFO";
   private static final String ACCOUNT_CHARGE = "CHARGE\\s[0-9]+\\.?[0-9]{0,2}";
-  private static final String ACCOUNT_WRITE_OFF = "WRITE_OFF\\s[0-9]+\\.?[0-9]{0,2}";
+  private static final String ACCOUNT_WRITE_OFF = "WRITE OFF\\s[0-9]+\\.?[0-9]{0,2}";
   private static final String ACCOUNT_SEND = "SEND\\s[0-9]+\\s[0-9]+\\.?[0-9]{0,2}";
 
   private static boolean isRun = true; //маркер работы программы
@@ -32,17 +37,17 @@ public class Loader {
   public static void main(String[] args) {
     Scanner scanner = new Scanner(System.in);
     String inAcc; //переменная заголовка итерации рабочего цикла
-    String input;
+    String input; //переменная хранения введённой строки
 
     //рабочий цикл
     while (isRun) {
       if (accounts.containsKey(accNum)) {
         inAcc = String.format(ACCOUNT_HEAD,
             accNum,
-            accounts.get(accNum).getAccType(),
+            accountType(accounts.get(accNum)),
             accounts.get(accNum).getAccount());
       } else {
-        inAcc = "";
+        inAcc = DEFAULT;
       }
 
       System.out.print(inAcc + BEGIN);
@@ -56,10 +61,9 @@ public class Loader {
       } else if (input.matches(EXIT)) {
         exit();
 
-        //СИПСОК и обнуление маркера номера счёта
+        //СИПСОК и "выход" из работы со счётом
       } else if (input.matches(LIST)) {
         list();
-        accNum = 0;
 
         //СОЗДАНИЕ Простого счёта
       } else if (input.matches(ADD_ACCOUNT)) {
@@ -85,11 +89,6 @@ public class Loader {
           System.out.println();
         }
 
-        //ИНФОРМАЦИЯ по счёту
-      } else if (input.matches(ACCOUNT_INFO)) {
-        System.out.print("");
-        getInfo(accNum);
-
         //ПОПОЛНЕНИЕ счёта
       } else if (input.matches(ACCOUNT_CHARGE)) {
         Double sum = Double.parseDouble(input.replaceAll("CHARGE\\s", ""));
@@ -98,7 +97,7 @@ public class Loader {
 
         //СПИСАНИЕ со счёта
       } else if (input.matches(ACCOUNT_WRITE_OFF)) {
-        Double sum = Double.parseDouble(input.replaceAll("WRITE_OFF\\s", ""));
+        Double sum = Double.parseDouble(input.replaceAll("WRITE OFF\\s", ""));
 
         System.out.println(opReport(withdraw(accNum, sum)));
 
@@ -125,9 +124,8 @@ public class Loader {
         .append("\tADD CARD - создать карточный счёт;\n")
         .append("\tACC {номер счёта} - работа с конкретым счётом;\n\n")
         .append("- команды для работы со счётом: \n")
-        .append("\t\tINFO - полная информация по счёту\n")
         .append("\t\tCHARGE {сумма} - пополнить счёт;\n")
-        .append("\t\tWRITE_OFF {сумма} - списать со счёта;\n")
+        .append("\t\tWRITE OFF {сумма} - списать со счёта;\n")
         .append("\t\tSEND {номер счёта} {сумма} - перевести на указанный счёт;\n\n");
 
     System.out.print(help);
@@ -146,7 +144,6 @@ public class Loader {
       list.append("\tСчёт №")
           .append(key)
           .append(" ")
-          .append(accounts.get(key).getAccType())
           .append(" : ")
           .append(accounts.get(key).getAccount())
           .append(" руб. ;\n");
@@ -154,16 +151,7 @@ public class Loader {
 
     list.append("\n");
     System.out.print(list);
-  }
-
-  //ИНФОРМАЦИЯ
-  private static void getInfo(int accNum) {
-    if (accounts.containsKey(accNum)) {
-      System.out.printf(ACCOUNT_NAME, accNum);
-      System.out.print(accounts.get(accNum).getInfo());
-    } else {
-      System.out.println(NO_ACC);
-    }
+    accNum = 0;
   }
 
   //ПОПОЛНЕНИЕ
@@ -205,5 +193,15 @@ public class Loader {
       return SUCCESS;
     }
     return FAIL;
+  }
+
+  //ТИП счёта
+  private static String accountType(BankAccount account) {
+    return switch (account.getClass().getSimpleName()) {
+      case (ACCOUNT) -> SIMPLE_TYPE;
+      case (DEPOSIT_ACCOUNT) -> DEPOSIT_TYPE;
+      case (CARD_ACCOUNT) -> CARD_TYPE;
+      default -> DEFAULT;
+    };
   }
 }
