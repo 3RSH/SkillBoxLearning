@@ -6,13 +6,13 @@ public class CardAccount extends BankAccount {
   private static final BigDecimal percent = BigDecimal.valueOf(0.01);
 
   //Конструктор
-  public CardAccount(BigDecimal account) {
+  protected CardAccount(BigDecimal account) {
     super(account);
   }
 
   //Снятие со счёта (переопределено)
   @Override
-  public boolean withdraw(BigDecimal amount) {
+  protected boolean withdraw(BigDecimal amount) {
     amount = amount.add(amount.multiply(percent)); //сумма снятия
     return super.withdraw(amount);
   }
