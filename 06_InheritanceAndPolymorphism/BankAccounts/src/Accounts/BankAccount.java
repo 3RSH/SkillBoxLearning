@@ -1,7 +1,9 @@
+package Accounts;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-class BankAccount {
+public class BankAccount {
 
   private static final int SCALE = 2; //ограничение количества знаков после запятой
   private static final String ERROR_MESSAGE = "На счёте недостаточно средств!";
@@ -10,19 +12,19 @@ class BankAccount {
   private BigDecimal account; //сумма счёта
 
   //Конструктор
-  protected BankAccount(BigDecimal account) {
+  public BankAccount(BigDecimal account) {
     this.account = account.setScale(SCALE, RoundingMode.HALF_DOWN);
     count++;
   }
 
   //Внесение на счёт
-  protected void deposit(BigDecimal amount) {
+  public void deposit(BigDecimal amount) {
     amount = amount.setScale(SCALE, RoundingMode.HALF_DOWN);
     account = account.add(amount);
   }
 
   //Снятие со счёта
-  protected boolean withdraw(BigDecimal amount) {
+  public boolean withdraw(BigDecimal amount) {
     amount = amount.setScale(SCALE, RoundingMode.HALF_DOWN);
 
     BigDecimal maxValue = account.max(amount);
@@ -37,7 +39,7 @@ class BankAccount {
   }
 
   //перевод на другой счёт
-  protected boolean send(BankAccount receiver, BigDecimal amount) {
+  public boolean send(BankAccount receiver, BigDecimal amount) {
     if (withdraw(amount)) {
       receiver.deposit(amount);
       return true;
@@ -47,12 +49,12 @@ class BankAccount {
   }
 
   //Геттер account
-  protected BigDecimal getAccount() {
+  public BigDecimal getAccount() {
     return account;
   }
 
   //Геттер count
-  protected static int getCount() {
+  public static int getCount() {
     return count;
   }
 }
