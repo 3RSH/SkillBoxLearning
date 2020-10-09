@@ -1,13 +1,11 @@
 package Clients;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 
 public class Person extends Client {
 
-  //Конструктор
   public Person(BigDecimal amount) {
-    account = amount.setScale(SCALE, RoundingMode.HALF_DOWN);
+    super(amount);
   }
 
   //Вывод в консоль информации о клиенте

@@ -1,16 +1,14 @@
 package Clients;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 
 public class Company extends Client {
 
   //Процент коммисии (0.01 = 1%)
   private static final BigDecimal percent = BigDecimal.valueOf(0.01);
 
-  //Конструктор
   public Company(BigDecimal amount) {
-    account = amount.setScale(SCALE, RoundingMode.HALF_DOWN);
+    super(amount);
   }
 
   //Вывод в консоль информации о клиенте (переопределено)

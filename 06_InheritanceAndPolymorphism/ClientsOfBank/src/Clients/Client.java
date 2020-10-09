@@ -3,12 +3,17 @@ package Clients;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-public abstract class Client {
+abstract class Client {
 
   protected static final int SCALE = 2; //ограничение количества знаков после запятой
   private static final String ERROR_MESSAGE = "На счёте недостаточно средств!";
 
-  protected BigDecimal account; //сумма счёта
+  //сумма счёта (изначально, всегда равна нулю!)
+  private BigDecimal account = BigDecimal.valueOf(0);
+
+  protected Client(BigDecimal amount) {
+    deposit(amount);
+  }
 
   //Вывод в консоль информации о клиенте
   abstract void printInfo();

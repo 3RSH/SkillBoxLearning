@@ -6,7 +6,6 @@ import java.math.BigDecimal;
 public class Loader {
 
   public static void main(String[] args) {
-
     //Проверка работы ФИЗ.ЛИЦА
 
     Person personAcc = new Person(BigDecimal.valueOf(500));
