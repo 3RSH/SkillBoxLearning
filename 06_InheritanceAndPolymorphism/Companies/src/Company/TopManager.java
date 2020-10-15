@@ -10,7 +10,7 @@ public class TopManager implements Employee {
 
   //константа порогового значения дохода компании,
   //для начисления бонусов
-  protected final long goodIncome = 10000000;
+  private static final long goodIncome = 10000000;
 
   private Company company; //ссылка на компанию
 
