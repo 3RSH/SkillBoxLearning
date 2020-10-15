@@ -2,32 +2,46 @@ package Company;
 
 public class Manager implements Employee {
 
+  //константа фиксированной части зарплаты
+  private static final int managerFixSalary = 40000;
+
+  //константы процента менеджера
+  private static final float managerPercent = 0.05f;
+
   private Company company; //ссылка на компанию
-  private int monthSalary = 0; //зарплата
+  private int income = 0; //принесённый доход
 
-  //установка ссылки на компанию,
-  //генерация заработка для компании,
-  //и установка зарплаты.
+  //увольнение
   @Override
-  public void setCompany(Company company) {
-    this.company = company;
-
-    if (company != null) { //(company == null) при увольнении !!!
-
-      //генерируем заработок для компании (от 115000 до 140000)
-      int income = (int) (Math.random() * 25001) + 115000;
-
-      //передаём заработок в компанию
-      company.setIncome(company.getIncome() + income);
-      monthSalary = company.getManagerFixSalary() + (int) (company.getManagerPercent() * income);
-    } else {
-      monthSalary = 0; //обнуляем заплату при увольнении
-    }
+  public void fire() {
+    company = null;
+    income = 0;
   }
 
-  //получение размера зарплаты сотрудника
+  //получение размера зарплаты
   @Override
   public Integer getMonthSalary() {
-    return monthSalary;
+    if (company != null) {
+      return managerFixSalary + (int) (managerPercent * income);
+    }
+    return 0;
+  }
+
+  //получение ссылки на компанию
+  @Override
+  public Company getCompany() {
+    return company;
+  }
+
+  //установка ссылки на компанию,
+  //и обновление заработка для компании
+  @Override
+  public void setCompany(Company company) {
+    if (this.company == null) {
+      this.company = company;
+      income = (int) (Math.random() * 25001) + 115000;
+      company.setIncome(company.getIncome() + income);
+      company.setIncome(company.getIncome() - getMonthSalary());
+    }
   }
 }
