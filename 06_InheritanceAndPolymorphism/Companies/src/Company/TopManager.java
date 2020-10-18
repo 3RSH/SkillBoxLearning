@@ -5,7 +5,7 @@ public class TopManager implements Employee {
   //константа фиксированной части зарплаты
   private static final int topManagerFixSalary = 80000;
 
-  //константы процента Топ-менеджера
+  //константа процента Топ-менеджера
   private static final float topManagerPercent = 1.5f;
 
   //константа порогового значения дохода компании,
@@ -14,22 +14,34 @@ public class TopManager implements Employee {
 
   private Company company; //ссылка на компанию
 
+  private int monthSalary = 0;
+
+  //получение константы фиксированной части зарплаты
+  static int getTopManagerFixSalary() {
+    return topManagerFixSalary;
+  }
+
+  //получение константы процента Топ-менеджера
+  static float getTopManagerPercent() {
+    return topManagerPercent;
+  }
+
+  //получение константы порогового значения дохода компании
+  static long getGoodIncome() {
+    return goodIncome;
+  }
+
   //увольнение
   @Override
   public void fire() {
     company = null;
+    monthSalary = 0;
   }
 
   //получение размера зарплаты
+  @Override
   public Integer getMonthSalary() {
-    if (company != null) {
-      if (company.getIncome() > goodIncome) {
-        company.setIncome(company.getIncome() - (int)(topManagerFixSalary * topManagerPercent));
-        return topManagerFixSalary + (int)(topManagerFixSalary * topManagerPercent);
-      }
-      return topManagerFixSalary;
-    }
-    return 0;
+    return monthSalary;
   }
 
   //получение ссылки на компанию
@@ -44,7 +56,23 @@ public class TopManager implements Employee {
   public void setCompany(Company company) {
     if (this.company == null) {
       this.company = company;
-      company.setIncome(company.getIncome() - topManagerFixSalary);
+      monthSalary = topManagerFixSalary;
     }
+  }
+
+  //получение дохода для компании
+  @Override
+  public int getIncome() {
+    return -topManagerFixSalary;
+  }
+
+  //сброс зарплаты до фиксированной части
+  void resetMonthSalary() {
+    monthSalary = topManagerFixSalary;
+  }
+
+  //корректировка зарплаты (для начисления бонуса)
+  void addMonthSalary(int amount) {
+    monthSalary += amount;
   }
 }

@@ -2,7 +2,8 @@ package Company;
 
 public class Operator implements Employee {
 
-  private static int operatorFixSalary = 20000; //зарплата
+  //константа фиксированной части зарплаты
+  private static final int operatorFixSalary = 20000;
 
   private Company company; //ссылка на компанию
 
@@ -18,6 +19,7 @@ public class Operator implements Employee {
     if (company != null) {
       return operatorFixSalary;
     }
+
     return 0;
   }
 
@@ -32,7 +34,12 @@ public class Operator implements Employee {
   public void setCompany(Company company) {
     if (this.company == null) {
       this.company = company;
-      company.setIncome(company.getIncome() - operatorFixSalary);
     }
+  }
+
+  //получение дохода для компании
+  @Override
+  public int getIncome() {
+    return -getMonthSalary();
   }
 }

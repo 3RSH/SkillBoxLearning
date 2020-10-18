@@ -11,6 +11,9 @@ public interface Employee {
   //получение ссылки на компанию
   Company getCompany();
 
+  //получение дохода для компании
+  int getIncome();
+
   //установка ссылки на компанию
   void setCompany(Company company);
 }

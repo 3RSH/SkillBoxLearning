@@ -34,6 +34,9 @@ public class Main {
     //нанимаем всех сотрудников из коллекции в компанию
     company.hireAll(employees1);
 
+    //смотрим доход компании
+    System.out.println("Доход компании: " + company.getIncome());
+
     //выводим список самых высоких зарплат в компании
     for (Employee e : company.getTopSalaryStaff(15)) {
       System.out.println(e.getMonthSalary());
@@ -49,10 +52,10 @@ public class Main {
     //УВОЛЬНЯЕМ 50% СОТРУДНИКОВ КОМАПНИИ
     employees1.clear();
 
-    for (Employee e : company.staff) {
+    for (Employee e : company.getStaff()) {
       employees1.add(e);
 
-      if (employees1.size() == company.staff.size() / 2) {
+      if (employees1.size() == company.getStaff().size() / 2) {
         break;
       }
     }
@@ -60,6 +63,9 @@ public class Main {
     for (Employee e : employees1) {
       company.fire(e);
     }
+
+    //смотрим доход компании
+    System.out.println("Доход компании: " + company.getIncome());
 
     System.out.println("==========================================");
     System.out.println("==========================================");
@@ -75,6 +81,9 @@ public class Main {
     for (Employee e : company.getLowestSalaryStaff(30)) {
       System.out.println(e.getMonthSalary());
     }
+
+    //смотрим доход компании
+    System.out.println("Доход компании: " + company.getIncome());
   }
 }
 

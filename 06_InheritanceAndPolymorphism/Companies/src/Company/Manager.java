@@ -40,8 +40,12 @@ public class Manager implements Employee {
     if (this.company == null) {
       this.company = company;
       income = (int) (Math.random() * 25001) + 115000;
-      company.setIncome(company.getIncome() + income);
-      company.setIncome(company.getIncome() - getMonthSalary());
     }
+  }
+
+  //получение дохода для компании
+  @Override
+  public int getIncome() {
+    return income - getMonthSalary();
   }
 }

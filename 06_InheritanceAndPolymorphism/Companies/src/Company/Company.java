@@ -1,24 +1,22 @@
 package Company;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class Company {
 
-  //компаратор сравнения сотрудников по зарплате
-  private static final EmployeeComparator comparator = new EmployeeComparator();
+  //компаратор класса
+  private static final Comparator<Employee> comparator = new EmployeeComparator();
 
   //коллекция сотрудников
-  public final List<Employee> staff = new ArrayList<>();
-
-  private long income = 0; //доход компании
+  private final List<Employee> staff = new ArrayList<>();
 
   //найм ОДНОГО сотрудника
   public void hire(Employee employee) {
     if (!this.equals(employee.getCompany())) {
-      staff.add(employee);
       employee.setCompany(this);
+      staff.add(employee);
     }
   }
 
@@ -32,49 +30,69 @@ public class Company {
   //увольнение ОДНОГО сотрудника
   public void fire(Employee employee) {
     if (this.equals(employee.getCompany())) {
-      staff.remove(employee);
       employee.fire();
+      staff.remove(employee);
     }
   }
 
   //получение списка самых высоких зарплат
   public List<Employee> getTopSalaryStaff(int count) {
-    List<Employee> list = new ArrayList<>();
-
-    if (count > 0) { //проверяем запрос отрицательного размера
-      count = correctCount(count);
-      staff.sort(comparator);
-      Collections.reverse(staff);
-      list = staff.subList(0, count);
-    }
-
-    return list;
+    return getSortedList(comparator.reversed(), count);
   }
 
   //получение списка самых низких зарплат
   public List<Employee> getLowestSalaryStaff(int count) {
-    List<Employee> list = new ArrayList<>();
+    return getSortedList(comparator, count);
+  }
 
-    if (count > 0) { //проверяем запрос отрицательного размера
-      count = correctCount(count);
-      staff.sort(comparator);
-      list = staff.subList(0, count);
+  //получение копии списка сотрудников
+  //для безопасной работы с ним
+  public List<Employee> getStaff() {
+    return new ArrayList<>(staff);
+  }
+
+  //получение актуального дохода
+  //с корректировкой ЗП сотрудникам,
+  //у которых ЗП зависит от дохода
+  //НЕОБХОДИМО ДЕЛАТЬ ВСЕГДА, ПРОСЛЕ НАЙМА/УВОЛЬНЕНИЯ!!!
+  public long getIncome() {
+    long income = 0;
+    long goodIncome = TopManager.getGoodIncome();
+    int bonus = (int) (TopManager.getTopManagerFixSalary()
+        * TopManager.getTopManagerPercent());
+
+    //первичный рассчёт, до начисления бонусов
+    for (Employee e : getStaff()) {
+      income += e.getIncome();
     }
 
-    return list;
+    //ищем экземпляры класса TopManager:
+    for (Employee e : getStaff()) {
+      //если находим, топ работаем с ЕГО методами:
+      if (e.getClass().equals(TopManager.class)) {
+        //сбрасываем ЗП до фиксированной части;
+        ((TopManager) e).resetMonthSalary();
+        //проверяем состояние дохода,
+        //и если он более контрольного значения
+        //класса TopManager:
+        if (income > goodIncome) {
+          income -= bonus; // - вычитаем бонус из дохода,
+          //и добавляем к ЗП экземпляра класса TopManager;
+          ((TopManager) e).addMonthSalary(bonus);
+        }
+      }
+    }
+
+    return income; //возвращаем актуальный доход
   }
 
-  //корректировка размера запрошенного списка,
-  //при его превышении размена коллекции сотрудников
-  private int correctCount(int count) {
-    return Math.min(count, staff.size());
-  }
-
-  public long getIncome() {
-    return income;
-  }
-
-  protected void setIncome(long income) {
-    this.income = income;
+  //получение упорядоченного списка определённой длины
+  private List<Employee> getSortedList(Comparator<Employee> comparator, int count) {
+    List<Employee> list = getStaff();
+    list.sort(comparator);
+    return list.subList(0, (count < 0)  //проверка отрицательной длины:
+        ? 0                             // - список нулевой длины(пустой);
+        : Math.min(count, list.size()));// - проверка превышения длины:
+    //         = выбираем наименьшее значение;
   }
 }
