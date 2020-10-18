@@ -1,6 +1,6 @@
 package Company;
 
-public class Manager implements Employee {
+public class Manager extends AbstractEmployee implements EmployeeGenerateIncome {
 
   //константа фиксированной части зарплаты
   private static final int managerFixSalary = 40000;
@@ -8,44 +8,16 @@ public class Manager implements Employee {
   //константы процента менеджера
   private static final float managerPercent = 0.05f;
 
-  private Company company; //ссылка на компанию
-  private int income = 0; //принесённый доход
-
-  //увольнение
+  //генерация дохода
   @Override
-  public void fire() {
-    company = null;
-    income = 0;
+   public int getGeneratedIncome() {
+    return (int)(Math.random() * 25001) + 115000;
   }
 
   //получение размера зарплаты
   @Override
   public Integer getMonthSalary() {
-    if (company != null) {
-      return managerFixSalary + (int) (managerPercent * income);
-    }
-    return 0;
-  }
-
-  //получение ссылки на компанию
-  @Override
-  public Company getCompany() {
-    return company;
-  }
-
-  //установка ссылки на компанию,
-  //и обновление заработка для компании
-  @Override
-  public void setCompany(Company company) {
-    if (this.company == null) {
-      this.company = company;
-      income = (int) (Math.random() * 25001) + 115000;
-    }
-  }
-
-  //получение дохода для компании
-  @Override
-  public int getIncome() {
-    return income - getMonthSalary();
+    return company == null ? 0
+        : managerFixSalary + (int) (managerPercent * getGeneratedIncome());
   }
 }

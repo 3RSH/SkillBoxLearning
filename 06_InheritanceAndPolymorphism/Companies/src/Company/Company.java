@@ -51,35 +51,14 @@ public class Company {
     return new ArrayList<>(staff);
   }
 
-  //получение актуального дохода
-  //с корректировкой ЗП сотрудникам,
-  //у которых ЗП зависит от дохода
-  //НЕОБХОДИМО ДЕЛАТЬ ВСЕГДА, ПРОСЛЕ НАЙМА/УВОЛЬНЕНИЯ!!!
+  //получение дохода компании
   public long getIncome() {
     long income = 0;
-    long goodIncome = TopManager.getGoodIncome();
-    int bonus = (int) (TopManager.getTopManagerFixSalary()
-        * TopManager.getTopManagerPercent());
 
     //первичный рассчёт, до начисления бонусов
-    for (Employee e : getStaff()) {
-      income += e.getIncome();
-    }
-
-    //ищем экземпляры класса TopManager:
-    for (Employee e : getStaff()) {
-      //если находим, топ работаем с ЕГО методами:
-      if (e.getClass().equals(TopManager.class)) {
-        //сбрасываем ЗП до фиксированной части;
-        ((TopManager) e).resetMonthSalary();
-        //проверяем состояние дохода,
-        //и если он более контрольного значения
-        //класса TopManager:
-        if (income > goodIncome) {
-          income -= bonus; // - вычитаем бонус из дохода,
-          //и добавляем к ЗП экземпляра класса TopManager;
-          ((TopManager) e).addMonthSalary(bonus);
-        }
+    for (Employee employee : getStaff()) {
+      if (employee instanceof EmployeeGenerateIncome) {
+        income += ((EmployeeGenerateIncome) employee).getGeneratedIncome();
       }
     }
 
@@ -93,6 +72,6 @@ public class Company {
     return list.subList(0, (count < 0)  //проверка отрицательной длины:
         ? 0                             // - список нулевой длины(пустой);
         : Math.min(count, list.size()));// - проверка превышения длины:
-    //         = выбираем наименьшее значение;
+                                        //         = выбираем наименьшее значение;
   }
 }
