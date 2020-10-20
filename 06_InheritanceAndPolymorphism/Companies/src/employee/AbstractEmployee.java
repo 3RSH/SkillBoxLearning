@@ -1,4 +1,6 @@
-package Company;
+package employee;
+
+import сompany.Company;
 
 public abstract class AbstractEmployee implements Employee {
 

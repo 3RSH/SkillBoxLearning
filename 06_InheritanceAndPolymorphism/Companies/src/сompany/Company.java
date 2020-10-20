@@ -1,4 +1,8 @@
-package Company;
+package сompany;
+
+import employee.Employee;
+import employee.EmployeeComparator;
+import employee.EmployeeGenerateIncome;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -68,10 +72,12 @@ public class Company {
   //получение упорядоченного списка определённой длины
   private List<Employee> getSortedList(Comparator<Employee> comparator, int count) {
     List<Employee> list = getStaff();
+
+    if (count <= 0) {
+      return list.subList(0, 0); //проверка отрицательной/нулевой длины
+    }
+
     list.sort(comparator);
-    return list.subList(0, (count < 0)  //проверка отрицательной длины:
-        ? 0                             // - список нулевой длины(пустой);
-        : Math.min(count, list.size()));// - проверка превышения длины:
-                                        //         = выбираем наименьшее значение;
+    return list.subList(0, Math.min(count, list.size()));
   }
 }

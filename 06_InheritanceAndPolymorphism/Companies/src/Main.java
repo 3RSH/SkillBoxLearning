@@ -1,8 +1,8 @@
-import Company.Company;
-import Company.Employee;
-import Company.Manager;
-import Company.Operator;
-import Company.TopManager;
+import сompany.Company;
+import employee.Employee;
+import employee.Manager;
+import employee.Operator;
+import employee.TopManager;
 import java.util.ArrayList;
 import java.util.List;
 

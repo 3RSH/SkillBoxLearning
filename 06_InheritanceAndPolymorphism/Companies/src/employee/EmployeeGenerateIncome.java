@@ -1,4 +1,4 @@
-package Company;
+package employee;
 
 public interface EmployeeGenerateIncome {
 
