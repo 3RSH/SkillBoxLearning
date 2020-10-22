@@ -3,6 +3,7 @@ import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 
@@ -27,6 +28,16 @@ public class Main {
       System.out.println(e.toString());
     }
 
+    System.out.println();
+
+    int year = 2017;
+
+    staff.stream()
+        .filter(e -> Integer
+            .parseInt(new SimpleDateFormat("yyyy")
+                .format(e.getWorkStart())) == year)
+        .max(Comparator.comparing(Employee::getSalary))
+        .ifPresent(System.out::println);
   }
 
   private static ArrayList<Employee> loadStaffFromFile() {
