@@ -31,7 +31,8 @@ public class Main {
     System.out.println();
 
     staff.stream()
-        .filter(e -> e.toString().matches(".+2017"))
+        .filter(e -> new SimpleDateFormat("yyyy")
+            .format(e.getWorkStart()).equals("2017"))
         .max(Comparator.comparing(Employee::getSalary))
         .ifPresent(System.out::println);
   }
