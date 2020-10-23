@@ -30,12 +30,8 @@ public class Main {
 
     System.out.println();
 
-    int year = 2017;
-
     staff.stream()
-        .filter(e -> Integer
-            .parseInt(new SimpleDateFormat("yyyy")
-                .format(e.getWorkStart())) == year)
+        .filter(e -> e.toString().matches(".+2017"))
         .max(Comparator.comparing(Employee::getSalary))
         .ifPresent(System.out::println);
   }
