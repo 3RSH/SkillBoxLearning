@@ -12,7 +12,8 @@ import java.util.Scanner;
 
 public class Main
 {
-    private static String dataFile = "src/main/resources/map.json";
+    private static String dataFile = "08_ExceptionsDebuggingAndTesting/SPBMetro"
+        + "/src/main/resources/map.json";
     private static Scanner scanner;
 
     private static StationIndex stationIndex;

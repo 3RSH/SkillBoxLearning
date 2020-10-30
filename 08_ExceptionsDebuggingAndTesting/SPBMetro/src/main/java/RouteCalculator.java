@@ -88,11 +88,11 @@ public class RouteCalculator
 
     private List<Station> getRouteWithOneConnection(Station from, Station to)
     {
-        if(from.getLine().equals(to.getLine())) {
-            return null;
-        }
+//        if(from.getLine().equals(to.getLine())) {
+//            return null;
+//        }
 
-        ArrayList<Station> route = new ArrayList<>();
+//        ArrayList<Station> route = new ArrayList<>();
 
         List<Station> fromLineStations = from.getLine().getStations();
         List<Station> toLineStations = to.getLine().getStations();
@@ -105,15 +105,17 @@ public class RouteCalculator
                     ArrayList<Station> way = new ArrayList<>();
                     way.addAll(getRouteOnTheLine(from, srcStation));
                     way.addAll(getRouteOnTheLine(dstStation, to));
-                    if(route.isEmpty() || route.size() > way.size())
-                    {
-                        route.clear();
-                        route.addAll(way);
-                    }
+//                    if(route.isEmpty() || route.size() > way.size())
+//                    {
+//                        route.clear();
+//                        route.addAll(way);
+//                    }
+                    return way;
                 }
             }
         }
-        return route;
+        return null;
+//        return route;
     }
 
     private boolean isConnected(Station station1, Station station2)
@@ -140,9 +142,9 @@ public class RouteCalculator
 
     private List<Station> getRouteWithTwoConnections(Station from, Station to)
     {
-        if (from.getLine().equals(to.getLine())) {
-            return null;
-        }
+//        if (from.getLine().equals(to.getLine())) {
+//            return null;
+//        }
 
         ArrayList<Station> route = new ArrayList<>();
 
@@ -161,14 +163,13 @@ public class RouteCalculator
                 way.addAll(getRouteOnTheLine(from, srcStation));
                 way.addAll(connectedLineRoute);
                 way.addAll(getRouteOnTheLine(dstStation, to));
-                if(route.isEmpty() || route.size() > way.size())
-                {
-                    route.clear();
+//                if(route.isEmpty() || route.size() > way.size())
+//                {
+//                    route.clear();
                     route.addAll(way);
-                }
+//                }
             }
         }
-
         return route;
     }
 }
