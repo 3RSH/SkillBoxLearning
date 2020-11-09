@@ -4,25 +4,36 @@
     <File name="Search" fileName="08_ExceptionsDebuggingAndTesting/SPBMetro/logs/search.log">
       <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
       <Filters>
-        <ThresholdFilter level="INFO" onMatch="NEUTRAL" onMismatch="DENY" />
-        <ThresholdFilter level="WARN" onMatch="DENY" onMismatch="NEUTRAL" />
+        <MarkerFilter marker = "INPUT_HISTORY" />
       </Filters>
     </File>
 
     <File name="InputErrors" fileName="08_ExceptionsDebuggingAndTesting/SPBMetro/logs/input_errors.log">
       <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
       <Filters>
-        <ThresholdFilter level="WARN" onMatch="NEUTRAL" onMismatch="DENY" />
-        <ThresholdFilter level="ERROR" onMatch="DENY" onMismatch="NEUTRAL" />
+        <MarkerFilter marker = "INVALID_STATIONS" />
       </Filters>
     </File>
 
     <File name="Errors" fileName="08_ExceptionsDebuggingAndTesting/SPBMetro/logs/exceptions.log">
       <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
       <Filters>
-        <ThresholdFilter level="ERROR" onMatch="NEUTRAL" onMismatch="DENY" />
+        <MarkerFilter marker = "EXCEPTION" />
       </Filters>
     </File>
+
+    <RollingFile name="Routes"
+      fileName="08_ExceptionsDebuggingAndTesting/SPBMetro/logs/last_route.log"
+      filePattern
+        ="08_ExceptionsDebuggingAndTesting/SPBMetro/logs/route_%d{yyyy-MM-dd HH_mm_ss}.log">
+      <PatternLayout pattern="%msg%n" />
+      <Filters>
+        <MarkerFilter marker = "OUTPUT" />
+      </Filters>
+      <Policies>
+        <TimeBasedTriggeringPolicy/>
+      </Policies>
+    </RollingFile>
   </appenders>
 
   <loggers>
@@ -30,6 +41,7 @@
       <appender-ref ref="Errors"/>
       <appender-ref ref="Search"/>
       <appender-ref ref="InputErrors"/>
+      <appender-ref ref="Routes"/>
     </root>
   </loggers>
 </configuration>

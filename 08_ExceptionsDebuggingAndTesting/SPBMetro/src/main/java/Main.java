@@ -1,7 +1,10 @@
 import core.Line;
 import core.Station;
+import java.io.IOException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -14,7 +17,17 @@ import java.util.Scanner;
 
 public class Main
 {
-    private static Logger logger;
+    //инициализация Логгера
+    private static final Logger LOGGER = LogManager.getLogger(Main.class);
+
+    //инициализация маркеров для Логгера
+    private static final Marker EXCEPTION_MARKER = MarkerManager.getMarker("EXCEPTION");
+    private static final Marker INPUT_HISTORY_MARKER = MarkerManager
+        .getMarker("INPUT_HISTORY");
+    private static final Marker INVALID_STATIONS_MARKER = MarkerManager
+        .getMarker("INVALID_STATIONS");
+    private static final Marker OUTPUT_MARKER = MarkerManager
+        .getMarker("OUTPUT");
 
     private static String dataFile = "08_ExceptionsDebuggingAndTesting/SPBMetro"
         + "/src/main/resources/map.json";
@@ -25,7 +38,6 @@ public class Main
     public static void main(String[] args)
     {
         RouteCalculator calculator = getRouteCalculator();
-        logger = LogManager.getRootLogger();
 
         System.out.println("Программа расчёта маршрутов метрополитена Санкт-Петербурга\n");
         scanner = new Scanner(System.in);
@@ -39,11 +51,14 @@ public class Main
                 System.out.println("Маршрут:");
                 printRoute(route);
 
+
+
                 System.out.println("Длительность: " +
                     RouteCalculator.calculateDuration(route) + " минут");
-                throw new Exception(); //выкидываем exception, для провеки логирования
+                throw new IOException(); //выкидываем exception, для провеки логирования
             } catch (Exception e) {
-                logger.error(e);
+                LOGGER.info(EXCEPTION_MARKER, "Перехвачено исключение: {}",
+                     e.toString());
             }
 
         }
@@ -68,9 +83,16 @@ public class Main
                 {
                     System.out.println("\tПереход на станцию " +
                         station.getName() + " (" + nextLine.getName() + " линия)");
+
+                    //логгируем путь
+                    LOGGER.info(OUTPUT_MARKER, "\tПереход на станцию {} ({} линия)"
+                        ,station.getName(),nextLine.getName());
                 }
             }
             System.out.println("\t" + station.getName());
+
+            //логгируем путь
+            LOGGER.info(OUTPUT_MARKER, "\t{}",station.getName());
             previousStation = station;
         }
     }
@@ -83,10 +105,14 @@ public class Main
             String line = scanner.nextLine().trim();
             Station station = stationIndex.getStation(line);
             if(station != null) {
-                logger.info(line); //логируем корректный ввод
+                //логируем корректный ввод
+                LOGGER.info(INPUT_HISTORY_MARKER, "Пользователь ввел станцию: {} ({} линия)"
+                    , station.getName(), station.getLine().getName());
                 return station;
             }
-            logger.warn(line); //логируем некорректный ввод
+            //логируем некорректный ввод
+            LOGGER.info(INVALID_STATIONS_MARKER
+                , "Пользователь ввел несуществующую станцию: {}", line);
             System.out.println("Станция не найдена :(");
         }
     }
