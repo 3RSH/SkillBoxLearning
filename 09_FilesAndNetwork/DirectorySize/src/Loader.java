@@ -8,11 +8,11 @@ import java.util.Scanner;
 
 class Loader {
 
-  private static final String REQUEST = "\nВведите путь до папки:\n\t";
-  private static final String INCORRECT_INPUT = "\tПуть неверен, или не существует!";
-  private static final String[] UNITS = {"б", "Кб", "Мб", "Гб", "Тб"};
-  private static final DecimalFormat OUTPUT_FORMAT = new DecimalFormat("#.#");
-  private static final int OUTPUT_SIZE = 999;
+  public static final String REQUEST = "\nВведите путь до папки:\n\t";
+  public static final String INCORRECT_INPUT = "\tПуть неверен, или не существует!";
+  public static final String[] UNITS = {"б", "Кб", "Мб", "Гб", "Тб"};
+  public static final DecimalFormat OUTPUT_FORMAT = new DecimalFormat("#.#");
+  public static final int OUTPUT_SIZE = 999;
 
   private static final Scanner scanner = new Scanner(System.in);
 
@@ -34,16 +34,30 @@ class Loader {
         System.out.println(INCORRECT_INPUT);
       }
 
-      //через Paths/Path/Files
-      System.out.println("Рассчёт через Paths/Path/Files:");
+      //через java.nio.file.Files
+      System.out.println("Рассчёт через java.nio.file.Files:");
 
-      Path pathF = Paths.get(path);
+      try {
+        Path pathF = Paths.get(path);
 
-      if (pathF.isAbsolute() && Files.exists(pathF)) {
-        System.out.printf("\tРазмер папки %s составляет %s\n"
-            , pathF.toAbsolutePath(), formatSizeForPrint(getSizeOfDirectory(pathF)));
-      } else {
-        System.out.println(INCORRECT_INPUT);
+        if (pathF.isAbsolute() && Files.exists(pathF)) {
+
+          //через Paths -> Path -> Files.walkFileTree()
+          System.out.println(" - Рассчёт через Paths -> Path -> Files.walkFileTree():");
+          System.out.printf("\tРазмер папки %s составляет %s\n"
+              , pathF.toAbsolutePath(), formatSizeForPrint(getSizeOfDirectory(pathF)));
+
+          //через Files -> Path -> File.walk() (без учёта размера файлов-директорий)
+          System.out.println(" - Рассчёт через Files -> Path -> File.walk():");
+          System.out.printf("\tРазмер папки %s составляет %s\n"
+              , pathF.toAbsolutePath()
+              , formatSizeForPrint(getSizeOfFiles(pathF)));
+        } else {
+          System.out.println(INCORRECT_INPUT);
+        }
+      } catch (IOException e) {
+        e.printStackTrace();
+        break;
       }
     }
   }
@@ -66,18 +80,22 @@ class Loader {
     return size;
   }
 
-  //через Paths/Path/Files
-  private static long getSizeOfDirectory(Path path) {
+  //через Paths -> Path -> Files.walkFileTree()
+  private static long getSizeOfDirectory(Path path) throws IOException {
 
     MyFileVisitor visitor = new MyFileVisitor();
 
-    try {
-      Files.walkFileTree(path, visitor);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-
+    Files.walkFileTree(path, visitor);
     return visitor.getSize();
+  }
+
+  //через Files -> Path -> File.walk() (без учёта размера файлов-директорий)
+  private static long getSizeOfFiles(Path path) throws IOException {
+    return Files.walk(path)
+        .map(Path::toFile)
+        .filter(file -> !file.isDirectory())
+        .mapToLong(File::length)
+        .sum();
   }
 
   //форматирование результата (размера) для вывода
