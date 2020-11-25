@@ -2,6 +2,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -17,62 +20,102 @@ public class Main {
 
   public static void main(String[] args) {
     try {
-      List<String> operations = Files.readAllLines(Paths.get(FILE_PATH));
+      //парсим файл CSV в список экземпляров класса Movement
+      List<Movement> list = parse(FILE_PATH);
 
-      operations.remove(0);
-      operations.forEach(Main::parseMovementString);
+      //считаем общий расход и доход
+      expense = list.stream().mapToDouble(Movement::getExpense).sum();
+      arrival = list.stream().mapToDouble(Movement::getIncome).sum();
 
       System.out.printf("Сумма расходов: %s руб.\n", formatMoney(expense));
       System.out.printf("Сумма доходов: %s руб.\n", formatMoney(arrival));
+
+      //получаем список организаций, по который был расход
+      list.stream().filter(movement -> movement.getExpense() != 0)
+          .forEach(move -> expenseByOrganisations.put(move.getName(), 0.0));
+
+      //заполняем полученный список значениями расходов
+      for (String name : expenseByOrganisations.keySet()) {
+        list.stream().filter(movement -> name.equals(movement.getName()))
+            .forEach(movement -> expenseByOrganisations
+                .put(name, (expenseByOrganisations.get(name) + movement.getExpense())));
+      }
+
       System.out.println("\nСуммы расходов по организациям:");
 
       for (String k : expenseByOrganisations.keySet()) {
         System.out.printf("%s\t\t%s руб.\n", k, formatMoney(expenseByOrganisations.get(k)));
       }
-
     } catch (IOException e) {
       e.printStackTrace();
     }
   }
 
-  //Извлечение из строки операции необходимой информации
-  private static void parseMovementString(String operation) {
+  //Парсинг файла выписки
+  private static List<Movement> parse(String pathToMovements) throws IOException {
 
-    //т.к. кавычки возможны только в последнем столбце,
-    //разбиваем строку по запятым с лимитом
-    String[] details = operation.split(",", 8);
+    List<Movement> movements = new ArrayList<>();
+    List<String> operations = Files.readAllLines(Paths.get(pathToMovements));
 
-    //вычленяем информацию об организации из "Описания операции"
-    String organization = details[5].substring(16, 70).trim();
+    operations.remove(0);
+    operations.forEach(s -> movements.add(getMovementFromStringCVS(s)));
+    return movements;
+  }
 
-    //подготавливаем строку "Прихода" для парсинга в Double
-    String in = details[6].replaceAll("\"", "")
-        .replaceAll(",", ".");
 
-    //подготавливаем строку "Расхода" для парсинга в Double
-    String out = details[7].replaceAll("\"", "")
-        .replaceAll(",", ".");
+  //Парсинг строки операции в экземпляр класса Movement
+  private static Movement getMovementFromStringCVS(String operation) {
+    //переменные для конструктора Movement
+    LocalDate date;
+    String name;
+    double income;
+    double expense;
+    String mcc;
 
-    //инкрементируем общий приход
-    arrival += Double.parseDouble(in);
+    ArrayList<String> data = new ArrayList<>();
+    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yy");
+    StringBuilder buffer = new StringBuilder();
 
-    //инкрементируем общий расход
-    expense += Double.parseDouble(out);
+    //разбиваем строку по запятым
+    String[] details = operation.split(",");
 
-    //вычленяем название организации из информации об организации
-    if (organization.contains("/")) {
-      organization = organization.substring(organization.lastIndexOf("/") + 1).trim();
-    } else {
-      organization = organization.substring(organization.lastIndexOf("\\") + 1).trim();
+    //обрабатываем кавычки и соединяем разделённые данные
+    for (int i = 0; i < (details.length - 1); i++) {
+      if (details[i].contains("\"")) {
+        buffer.append(details[i]).append(',').append(details[i + 1]);
+        details[i] = buffer.toString().replace("\"", "");
+        details[i + 1] = "";
+        buffer.setLength(0);
+      }
     }
 
-    //заполняем список расходов по организациям
-    if (expenseByOrganisations.containsKey(organization)) {
-      Double exp = Double.parseDouble(out) + expenseByOrganisations.get(organization);
-      expenseByOrganisations.put(organization, exp);
-    } else {
-      expenseByOrganisations.put(organization, Double.parseDouble(out));
+    //получаем чистый массив данных
+    for (String str : details) {
+      if (!str.equals("")) {
+        data.add(str);
+      }
     }
+
+    //инициализируем переменную date
+    date = LocalDate.parse(data.get(3), dateFormatter);
+
+    //инициализируем переменную name
+    name = data.get(5).substring(16, 70);
+    name = name.replaceAll("[\\\\/]+", "/").trim();
+    name = name.substring(name.indexOf('/')).trim();
+    name = name.replaceAll("/+", " ").trim();
+
+    //инициализируем переменную income
+    income = Double.parseDouble(data.get(6).replace(',', '.'));
+
+    //инициализируем переменную expense
+    expense = Double.parseDouble(data.get(7).replace(',', '.'));
+
+    //инициализируем переменную mcc
+    mcc = data.get(5).substring(data.get(5).length() - 7);
+
+    //возвращаем экземпляр класса Movement
+    return new Movement(date, name, income, expense, mcc);
   }
 
   //Форматирование суммы для вывода
