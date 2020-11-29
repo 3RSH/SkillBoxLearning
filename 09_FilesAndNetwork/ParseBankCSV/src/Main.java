@@ -7,6 +7,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.function.ToDoubleFunction;
 
 public class Main {
 
@@ -31,12 +32,11 @@ public class Main {
       //парсим файл CSV в список экземпляров класса Movement
       List<Movement> list = parse(FILE_PATH);
 
-      //считаем общий расход и доход
-      Double expense = list.stream().mapToDouble(Movement::getExpense).sum();
-      Double arrival = list.stream().mapToDouble(Movement::getIncome).sum();
-
-      System.out.printf("Сумма расходов: %s руб.\n", formatMoney(expense));
-      System.out.printf("Сумма доходов: %s руб.\n", formatMoney(arrival));
+      //считаем и выводим общий расход и доход
+      System.out.printf("Сумма расходов: %s руб.\n"
+          , formatMoney(getSum(list, Movement::getExpense)));
+      System.out.printf("Сумма доходов: %s руб.\n"
+          , formatMoney(getSum(list, Movement::getIncome)));
 
       //создаём список расходов по организациям
       HashMap<String, Double> expenseByOrganisations = new HashMap<>();
@@ -121,6 +121,11 @@ public class Main {
 
     //возвращаем экземпляр класса Movement
     return new Movement(date, name, income, expense, mcc);
+  }
+
+  //получение суммы элементов списка по функции ToDoubleFunction<T>
+  private static Double getSum(List<Movement> movements, ToDoubleFunction<Movement> function) {
+    return movements.stream().mapToDouble(function).sum();
   }
 
   //Форматирование суммы для вывода
