@@ -201,4 +201,5 @@ $RECYCLE.BIN/
 .idea/
 
 # Projects results
-09_FilesAndNetwork/DocParser/images/
+09_FilesAndNetwork/DocParser/images/JavaIO/
+09_FilesAndNetwork/DocParser/images/JavaNIO/
