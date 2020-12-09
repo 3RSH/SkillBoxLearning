@@ -21,10 +21,13 @@ public class Main {
       = "09_FilesAndNetwork/JsonParse/src/main/resources/map.json";
 
   //список номеров линий в правильном порядке
-  private static final ArrayList<String> sortedNumOfLines = new ArrayList<>();
+  private static final List<String> sortedNumOfLines = new ArrayList<>();
 
   //список линий(экземпляров класса Line)
-  private static final ArrayList<Line> lines = new ArrayList<>();
+  private static final List<Line> lines = new ArrayList<>();
+
+  //список переходов типа Станция A <-> Станция B
+  private static final List<Connection> stToStConnections = new ArrayList<>();
 
   //список станции по номерам линий(объект типа Elements)
   private static Elements stationsByLinesSelect;
@@ -57,11 +60,14 @@ public class Main {
       //получаем JSON-массив линий
       JsonArray lines = parsedJson.get("lines").getAsJsonArray();
 
+      //получаем JSON-массив переходов
+      JsonArray connections = parsedJson.get("connections").getAsJsonArray();
+
       //получаем JSON-объект станций
       JsonObject stations = parsedJson.get("stations").getAsJsonObject();
 
       //вывод результатов в консоль
-      System.out.print(getResult(lines, stations));
+      System.out.println(getResult(lines, connections, stations));
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -76,11 +82,18 @@ public class Main {
       //получаем строчки с описанием линий метро
       Elements linesSelect = doc.select("#metrodata > div > div > span");
 
-      //заполняем массивы sortedNumOfLines и lines
+      //заполняем списки sortedNumOfLines и lines
       linesSelect.forEach(Main::fillLinesAndNumbers);
 
       //получаем строчки с описанием станций
       stationsByLinesSelect = doc.select("#metrodata > div > div.js-depend > div");
+
+      //заполняем список stToStConnections
+      sortedNumOfLines.forEach(Main::fillStToStConnections);
+
+      //чистим список stToStConnections от повторов
+      clearStToStConnections();
+
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -91,6 +104,47 @@ public class Main {
     sortedNumOfLines.add(element.attr("data-line"));
     lines.add(new Line(element.attr("data-line")
         , element.text().replace(" линия", "")));
+  }
+
+  //Заполнение списка stToStConnections по номеру линии
+  private static void fillStToStConnections(String lineNum) {
+
+    Element stationsList = stationsByLinesSelect.stream()
+        .filter(element -> element.attr("data-line").equals(lineNum)).findAny().get();
+
+    Elements stations = stationsList.select("div > p:has(span[class^=t-icon-metroln])");
+
+    for (Element station : stations) {
+      Elements connectElement = station.select("p > a > span[class^=t-icon-metroln]");
+
+      connectElement.forEach(connection -> {
+        int startIndexSt = connection.attr("title").indexOf("«") + 1;
+        int endIndexSt = connection.attr("title").indexOf("»");
+
+        stToStConnections.add(new Connection(lineNum, station.select("a > span.name").text()
+            , connection.className().replaceAll("t-icon-metroln ln-", "")
+            , connection.attr("title")
+            .substring(startIndexSt, endIndexSt)));
+      });
+    }
+  }
+
+  //Чистка списка stToStConnections от повторов
+  private static void clearStToStConnections() {
+    List<Connection> emptyConnects = new ArrayList<>();
+
+    for (Connection connectFrom : stToStConnections) {
+      for (Connection connectTo : stToStConnections) {
+        if (connectFrom.toLine.equals(connectTo.line)
+            && connectFrom.toStation.equals(connectTo.station)) {
+          connectTo.toLine = "";
+          connectTo.toStation = "";
+          emptyConnects.add(connectTo);
+        }
+      }
+    }
+
+    stToStConnections.removeAll(emptyConnects);
   }
 
   //Формирование JSON-данных
@@ -104,6 +158,45 @@ public class Main {
 
       getStationsByLineNum(num).forEach(stByLine::add);
       jsonStations.add(num, stByLine);
+    }
+
+    //создаём JSON-массив с переходами
+    JsonArray jsonConnections = new JsonArray();
+
+    //заполняем JSON-массив с переходами
+    for (int i = 0; i < stToStConnections.size(); i++) {
+      JsonArray connection = new JsonArray();
+
+      Connection connect = stToStConnections.get(i);
+
+      JsonObject aToB = new JsonObject();
+      aToB.addProperty("line", connect.line);
+      aToB.addProperty("station", connect.station);
+      connection.add(aToB);
+
+      JsonObject bToA = new JsonObject();
+      bToA.addProperty("line", connect.toLine);
+      bToA.addProperty("station", connect.toStation);
+      connection.add(bToA);
+
+      //дополняем переход (в блоке while) другими переходами с этой-же станцией
+      while (i < stToStConnections.size() - 1) {
+
+        Connection nextConnect = stToStConnections.get(i + 1);
+
+        if (connect.line.equals(nextConnect.line)
+            && connect.station.equals(nextConnect.station)) {
+          bToA = new JsonObject();
+          bToA.addProperty("line", nextConnect.toLine);
+          bToA.addProperty("station", nextConnect.toStation);
+          connection.add(bToA);
+          i++;
+        } else {
+          break;
+        }
+      }
+
+      jsonConnections.add(connection);
     }
 
     //создаём JSON-массив с линиями
@@ -123,26 +216,27 @@ public class Main {
 
     //записываем в него jsonStations и jsonLines
     jsonOutput.add("stations", jsonStations);
+    jsonOutput.add("connections", jsonConnections);
     jsonOutput.add("lines", jsonLines);
 
     return jsonOutput;
   }
 
   //Получение списка станций по номеру линии
-  private static List<String> getStationsByLineNum(String num) {
+  private static List<String> getStationsByLineNum(String lineNum) {
     List<String> stations = new ArrayList<>();
 
-    Element sl = stationsByLinesSelect.stream()
-        .filter(element -> element.attr("data-line").equals(num)).findAny().get();
+    Element stationsOfLine = stationsByLinesSelect.stream()
+        .filter(element -> element.attr("data-line").equals(lineNum)).findAny().get();
 
-    sl.select("p > a > span.name")
+    stationsOfLine.select("p > a > span.name")
         .forEach(element -> stations.add(element.text()));
 
     return stations;
   }
 
   //Получение строки с результатом, для вывода в консоль
-  private static String getResult(JsonArray lines, JsonObject stations) {
+  private static String getResult(JsonArray lines, JsonArray connections, JsonObject stations) {
     StringBuilder builder = new StringBuilder();
 
     for (JsonElement line : lines) {
@@ -159,6 +253,11 @@ public class Main {
           .append(declensionOfOutputWord(stationsOfLine.size()))
           .append(".\n");
     }
+
+    builder.append("Количество переходов: ")
+        .append(connections.size())
+        .append(".");
+
     return builder.toString();
   }
 
@@ -197,7 +296,7 @@ public class Main {
   }
 
   //Инициализация класса Line,
-  //для хранения информации о линии(номер + имя)
+  //для хранения информации о линии(номер + название)
   private static class Line {
 
     private final String number;
@@ -206,6 +305,24 @@ public class Main {
     private Line(String number, String name) {
       this.number = number;
       this.name = name;
+    }
+  }
+
+  //Инициализация класса Connection,
+  //для хранения информации о переходе:
+  //  (номер линии, имя станции, номер линии перехода, имя станции перехода,)
+  private static class Connection {
+
+    private final String line;
+    private final String station;
+    private String toLine;
+    private String toStation;
+
+    public Connection(String line, String station, String toLine, String toStation) {
+      this.line = line;
+      this.station = station;
+      this.toLine = toLine;
+      this.toStation = toStation;
     }
   }
 }
