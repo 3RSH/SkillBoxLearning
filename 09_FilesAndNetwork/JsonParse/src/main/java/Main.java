@@ -9,6 +9,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import metro.Connection;
+import metro.Line;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -19,9 +21,6 @@ public class Main {
   private static final String URL = "https://www.moscowmap.ru/metro.html#lines";
   private static final String RESULT_FILE
       = "09_FilesAndNetwork/JsonParse/src/main/resources/map.json";
-
-  //список номеров линий в правильном порядке
-  private static final List<String> sortedNumOfLines = new ArrayList<>();
 
   //список линий(экземпляров класса Line)
   private static final List<Line> lines = new ArrayList<>();
@@ -37,15 +36,18 @@ public class Main {
     //парсим страницу Московского метро
     getDataFromSite();
 
-    //формируем JSON-данные для записи в файл
-    JsonObject jsonOutput = getJsonData();
+    //формируем данные для записи в файл
+    JsonResponse jsonResponse = new JsonResponse();
+    jsonResponse.setStations(lines);
+    jsonResponse.setConnections(stToStConnections);
+    jsonResponse.setLines(lines);
 
     //СОЗДАЁМ И ЗАПИСЫВАЕМ JSON-ФАЙЛ===========================
     try (FileWriter fileWriter
         = new FileWriter(RESULT_FILE)) {
       Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-      fileWriter.write(gson.toJson(jsonOutput));
+      fileWriter.write(gson.toJson(jsonResponse));
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -82,14 +84,14 @@ public class Main {
       //получаем строчки с описанием линий метро
       Elements linesSelect = doc.select("#metrodata > div > div > span");
 
-      //заполняем списки sortedNumOfLines и lines
-      linesSelect.forEach(Main::fillLinesAndNumbers);
-
       //получаем строчки с описанием станций
       stationsByLinesSelect = doc.select("#metrodata > div > div.js-depend > div");
 
+      //заполняем списки sortedNumOfLines и lines
+      linesSelect.forEach(Main::fillLines);
+
       //заполняем список stToStConnections
-      sortedNumOfLines.forEach(Main::fillStToStConnections);
+      lines.forEach(line -> fillStToStConnections(line.getNumber()));
 
       //чистим список stToStConnections от повторов
       clearStToStConnections();
@@ -99,11 +101,11 @@ public class Main {
     }
   }
 
-  //Заполнение списков sortedNumOfLines и lines
-  private static void fillLinesAndNumbers(Element element) {
-    sortedNumOfLines.add(element.attr("data-line"));
+  //Заполнение списка lines
+  private static void fillLines(Element element) {
     lines.add(new Line(element.attr("data-line")
-        , element.text().replace(" линия", "")));
+        , element.text().replace(" линия", "")
+        , getStationsByLineNum(element.attr("data-line"))));
   }
 
   //Заполнение списка stToStConnections по номеру линии
@@ -135,91 +137,16 @@ public class Main {
 
     for (Connection connectFrom : stToStConnections) {
       for (Connection connectTo : stToStConnections) {
-        if (connectFrom.toLine.equals(connectTo.line)
-            && connectFrom.toStation.equals(connectTo.station)) {
-          connectTo.toLine = "";
-          connectTo.toStation = "";
+        if (connectFrom.getToLine().equals(connectTo.getLine())
+            && connectFrom.getToStation().equals(connectTo.getStation())) {
+          connectTo.setToLine("");
+          connectTo.setToStation("");
           emptyConnects.add(connectTo);
         }
       }
     }
 
     stToStConnections.removeAll(emptyConnects);
-  }
-
-  //Формирование JSON-данных
-  private static JsonObject getJsonData() {
-    //создаём JSON-объект со станциями
-    JsonObject jsonStations = new JsonObject();
-
-    //заполняем JSON-объект со станциями в порядке нумерации линий
-    for (String num : sortedNumOfLines) {
-      JsonArray stByLine = new JsonArray();
-
-      getStationsByLineNum(num).forEach(stByLine::add);
-      jsonStations.add(num, stByLine);
-    }
-
-    //создаём JSON-массив с переходами
-    JsonArray jsonConnections = new JsonArray();
-
-    //заполняем JSON-массив с переходами
-    for (int i = 0; i < stToStConnections.size(); i++) {
-      JsonArray connection = new JsonArray();
-
-      Connection connect = stToStConnections.get(i);
-
-      JsonObject aToB = new JsonObject();
-      aToB.addProperty("line", connect.line);
-      aToB.addProperty("station", connect.station);
-      connection.add(aToB);
-
-      JsonObject bToA = new JsonObject();
-      bToA.addProperty("line", connect.toLine);
-      bToA.addProperty("station", connect.toStation);
-      connection.add(bToA);
-
-      //дополняем переход (в блоке while) другими переходами с этой-же станцией
-      while (i < stToStConnections.size() - 1) {
-
-        Connection nextConnect = stToStConnections.get(i + 1);
-
-        if (connect.line.equals(nextConnect.line)
-            && connect.station.equals(nextConnect.station)) {
-          bToA = new JsonObject();
-          bToA.addProperty("line", nextConnect.toLine);
-          bToA.addProperty("station", nextConnect.toStation);
-          connection.add(bToA);
-          i++;
-        } else {
-          break;
-        }
-      }
-
-      jsonConnections.add(connection);
-    }
-
-    //создаём JSON-массив с линиями
-    JsonArray jsonLines = new JsonArray();
-
-    //заполняем JSON-массив с линиями объектами JsonObject,
-    //созданными на основе элементов массива lines
-    for (Line l : lines) {
-      JsonObject line = new JsonObject();
-      line.addProperty("number", l.number);
-      line.addProperty("name", l.name);
-      jsonLines.add(line);
-    }
-
-    //создаём основной JSON-объект, для записи в файл
-    JsonObject jsonOutput = new JsonObject();
-
-    //записываем в него jsonStations и jsonLines
-    jsonOutput.add("stations", jsonStations);
-    jsonOutput.add("connections", jsonConnections);
-    jsonOutput.add("lines", jsonLines);
-
-    return jsonOutput;
   }
 
   //Получение списка станций по номеру линии
@@ -261,12 +188,12 @@ public class Main {
     return builder.toString();
   }
 
-  //Очистка строки JSON-значения от кавычек
+  //Очистка строки JSON-значения от кавычек(для печати результатов)
   private static String clearJsonValue(JsonElement value) {
     return value.toString().replace("\"", "");
   }
 
-  //Добавление слова "линия" к названию линии,
+  //Добавление слова "линия" к названию линии(для печати результатов),
   //если оно того требует
   private static String getEndOfLineName(String name) {
     if (name.matches("[А-Яа-яё\\-]*")) {
@@ -293,36 +220,5 @@ public class Main {
     }
 
     return "станций";
-  }
-
-  //Инициализация класса Line,
-  //для хранения информации о линии(номер + название)
-  private static class Line {
-
-    private final String number;
-    private final String name;
-
-    private Line(String number, String name) {
-      this.number = number;
-      this.name = name;
-    }
-  }
-
-  //Инициализация класса Connection,
-  //для хранения информации о переходе:
-  //  (номер линии, имя станции, номер линии перехода, имя станции перехода,)
-  private static class Connection {
-
-    private final String line;
-    private final String station;
-    private String toLine;
-    private String toStation;
-
-    public Connection(String line, String station, String toLine, String toStation) {
-      this.line = line;
-      this.station = station;
-      this.toLine = toLine;
-      this.toStation = toStation;
-    }
   }
 }
