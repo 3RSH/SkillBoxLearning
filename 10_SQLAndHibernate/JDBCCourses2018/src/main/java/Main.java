@@ -2,6 +2,9 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.List;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.Metadata;
@@ -32,14 +35,24 @@ public class Main {
       .build();
   private static final Metadata METADATA = new MetadataSources(REGISTRY).getMetadataBuilder()
       .build();
-  
+
   public static void main(String[] args) {
 
     //домашняя работа 10.1
     getBuyingStatisticOfCourses();
 
+    //инициализируем SessionFactory
+    SessionFactory sessionFactory = METADATA.getSessionFactoryBuilder().build();
+    Session session = sessionFactory.openSession();
+
     //домашняя работа 10.2
-    getCourseObjectNameAndStudentsCount();
+    getCourseObjectNameAndStudentsCount(session);
+
+    //домашняя работа 10.2*
+    getTeachers(session);
+
+    //закрываем SessionFactory
+    sessionFactory.close();
   }
 
   private static void getBuyingStatisticOfCourses() {
@@ -63,16 +76,10 @@ public class Main {
     System.out.println(output.toString());
   }
 
-  private static void getCourseObjectNameAndStudentsCount() {
-    //инициализируем SessionFactory
-    SessionFactory sessionFactory = METADATA.getSessionFactoryBuilder().build();
-    Session session = sessionFactory.openSession();
+  private static void getCourseObjectNameAndStudentsCount(Session session) {
 
     //получаем объект класса Course
     Course course = session.get(Course.class, 1);
-
-    //закрываем SessionFactory
-    sessionFactory.close();
 
     StringBuilder output = new StringBuilder()
         .append(course.getName())
@@ -80,5 +87,17 @@ public class Main {
         .append(course.getStudentsCount());
 
     System.out.println(output.toString());
+  }
+
+  private static void getTeachers(Session session) {
+    CriteriaBuilder builder = session.getCriteriaBuilder();
+    CriteriaQuery<Teacher> criteria = builder.createQuery(Teacher.class);
+    criteria.from(Teacher.class);
+
+    //получаем список объектов класса Teacher
+    List<Teacher> teachers = session.createQuery(criteria).getResultList();
+    
+    //выводим всех учителей с врзрастом и зарплатой
+    teachers.forEach(System.out::println);
   }
 }
