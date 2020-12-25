@@ -1,3 +1,5 @@
+import Entities.Course;
+import Entities.Teacher;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -41,18 +43,30 @@ public class Main {
     //домашняя работа 10.1
     getBuyingStatisticOfCourses();
 
-    //инициализируем SessionFactory
-    SessionFactory sessionFactory = METADATA.getSessionFactoryBuilder().build();
-    Session session = sessionFactory.openSession();
+    try (SessionFactory sessionFactory = METADATA.getSessionFactoryBuilder().build()) {
 
-    //домашняя работа 10.2
-    getCourseObjectNameAndStudentsCount(session);
+      Session session = sessionFactory.openSession();
 
-    //домашняя работа 10.2*
-    getTeachers(session);
+      //домашняя работа 10.2
+      getCourseObjectNameAndStudentsCount(session);
 
-    //закрываем SessionFactory
-    sessionFactory.close();
+      //домашняя работа 10.2*
+      getTeachers(session);
+
+      //домашняя работа 10.3(пример работы сущностей)
+
+      //создаём экземпляр класса Course из таблицы курсов
+      Course course = session.get(Course.class, 3);
+
+      //выводим имя курса
+      System.out.println(course.getName());
+
+      //выводим список студенов, подписанных на данный курс
+      //, используя связь @OneToMany в сущности Course
+      course.getSubscriptions()
+          .forEach(s -> System.out.println(" - " + s.getStudent().getName()));
+    }
+
   }
 
   private static void getBuyingStatisticOfCourses() {
@@ -78,7 +92,7 @@ public class Main {
 
   private static void getCourseObjectNameAndStudentsCount(Session session) {
 
-    //получаем объект класса Course
+    //получаем объект класса Entities.Course
     Course course = session.get(Course.class, 1);
 
     StringBuilder output = new StringBuilder()
@@ -94,9 +108,9 @@ public class Main {
     CriteriaQuery<Teacher> criteria = builder.createQuery(Teacher.class);
     criteria.from(Teacher.class);
 
-    //получаем список объектов класса Teacher
+    //получаем список объектов класса Entities.Teacher
     List<Teacher> teachers = session.createQuery(criteria).getResultList();
-    
+
     //выводим всех учителей с врзрастом и зарплатой
     teachers.forEach(System.out::println);
   }
