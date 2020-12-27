@@ -2,15 +2,11 @@ package Entities;
 
 import java.io.Serializable;
 import java.util.Date;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -22,24 +18,19 @@ public class Purchase {
   @EmbeddedId
   private Key id;
 
-  @ManyToOne(cascade = CascadeType.ALL)
-  @JoinColumn(name = "student_name", insertable = false, updatable = false)
-  private Student student;
+  @Column(name = "student_name", insertable = false, updatable = false)
+  private String studentName;
 
-  @ManyToOne(cascade = CascadeType.ALL)
-  @JoinColumn(name = "course_name", insertable = false, updatable = false)
-  private Course course;
-
+  @Column(name = "course_name", insertable = false, updatable = false)
+  private String courseName;
 
   private int price;
 
   @Column(name = "subscription_date")
   private Date subscriptionDate;
 
-
   @Data
   @NoArgsConstructor
-  @AllArgsConstructor
   @Embeddable
   public static class Key implements Serializable {
 

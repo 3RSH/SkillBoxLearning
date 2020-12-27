@@ -55,7 +55,6 @@ public class Main {
 
       //домашняя работа 10.3(пример работы сущностей)
 
-      //создаём экземпляр класса Course из таблицы курсов
       Course course = session.get(Course.class, 3);
 
       //выводим имя курса

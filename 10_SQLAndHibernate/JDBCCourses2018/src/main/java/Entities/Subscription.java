@@ -20,12 +20,10 @@ import lombok.NoArgsConstructor;
 public class Subscription {
 
   @Id
-  @ManyToOne(cascade = CascadeType.ALL)
   private Student student;
 
   @Id
-  @Column(name = "course_id")
-  private int courseId;
+  private Course course;
 
   @Column(name = "subscription_date")
   private Date subscriptionDate;
@@ -38,7 +36,7 @@ public class Subscription {
     @ManyToOne(cascade = CascadeType.ALL)
     private Student student;
 
-    @Column(name = "course_id")
-    private int courseId;
+    @ManyToOne(cascade = CascadeType.ALL)
+    private Course course;
   }
 }
