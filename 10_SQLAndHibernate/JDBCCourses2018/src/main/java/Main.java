@@ -1,14 +1,22 @@
 import Entities.Course;
+import Entities.LinkedPurchase;
+import Entities.LinkedPurchase.Key;
+import Entities.Purchase;
+import Entities.Student;
 import Entities.Teacher;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.boot.Metadata;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
@@ -54,18 +62,78 @@ public class Main {
       getTeachers(session);
 
       //домашняя работа 10.3(пример работы сущностей)
+      showExampleOfEntitiesConnections(session);
 
-      Course course = session.get(Course.class, 3);
+      //домашняя работа 10.4 ======================================
 
-      //выводим имя курса
-      System.out.println(course.getName());
+      //очистка таблицы LinkedPurchaseList (для повторного заполнения)
+      eraseLinkedPurchaseList(session);
 
-      //выводим список студенов, подписанных на данный курс
-      //, используя связь @OneToMany в сущности Course
-      course.getSubscriptions()
-          .forEach(s -> System.out.println(" - " + s.getStudent().getName()));
+      //создаём список для сущностей типа LinkedPurchase
+      List<LinkedPurchase> linkedPurchases = new ArrayList<>();
+
+      //подготавливаем запрос всех сущностей типа Purchase
+      CriteriaBuilder builder = session.getCriteriaBuilder();
+      CriteriaQuery<Purchase> criteriaQuery = builder.createQuery(Purchase.class);
+      criteriaQuery.from(Purchase.class);
+
+      //делаем запрос и создаём список всех сущностей типа Purchase
+      List<Purchase> purchases = session.createQuery(criteriaQuery).getResultList();
+
+      //обработка списка сущностей purchases
+      for (Purchase purchase : purchases) {
+
+        //ОПРЕДЕЛЯЕМ ID СТУДЕНТА ==================================
+
+        //получаем имя студента из сущности типа Purchase
+        String studentName = purchase.getStudentName();
+
+        //подготавливаем запрос сущности типа Student, с именем студента из сущности Purchase
+        CriteriaQuery<Student> studentCriteriaQuery = builder.createQuery(Student.class);
+        Root<Student> studentRoot = studentCriteriaQuery.from(Student.class);
+        studentCriteriaQuery.select(studentRoot)
+            .where(builder.equal(studentRoot.get("name"), studentName));
+
+        //делаем запрос и инициализируем сущность типа Student
+        Student student = session.createQuery(studentCriteriaQuery).getSingleResult();
+
+        //получаем id из сущности типа Student
+        int studentId = student.getId();
+
+        //ОПРЕДЕЛЯЕМ ID КУРСА ======================================
+
+        //получаем имя курса из сущности типа Purchase
+        String courseName = purchase.getCourseName();
+
+        //подготавливаем запрос сущности типа Course, с именем курса из сущности Purchase
+        String hql = "from " + Course.class.getSimpleName() + " where name = '" + courseName + "'";
+
+        //делаем запрос и инициализируем сущность типа Course
+        Course course = (Course) session.createQuery(hql).getSingleResult();
+
+        //получаем id из сущности типа Course
+        int courseId = course.getId();
+
+        //ЗАПОЛНЯЕМ СПИСОК СУЩНОСТЕЙ ТИПА LinkedPurchase ===========
+
+        //создаём и инициализируем сущьность типа LinkedPurchase
+        //, на основании полученных id студента, и id курса
+        LinkedPurchase linkedPurchase = new LinkedPurchase();
+        linkedPurchase.setId(new Key(studentId, courseId));
+
+        //добавляем список сущностей типа LinkedPurchase в список
+        linkedPurchases.add(linkedPurchase);
+      }
+
+      //начинаем/открываем транзакцию
+      Transaction transaction = session.beginTransaction();
+
+      //занесение элементов списка linkedPurchases в таблицу
+      linkedPurchases.forEach(session::save);
+
+      //проводим транзакцию
+      transaction.commit();
     }
-
   }
 
   private static void getBuyingStatisticOfCourses() {
@@ -94,12 +162,9 @@ public class Main {
     //получаем объект класса Entities.Course
     Course course = session.get(Course.class, 1);
 
-    StringBuilder output = new StringBuilder()
-        .append(course.getName())
-        .append(". Количество студентов:")
-        .append(course.getStudentsCount());
-
-    System.out.println(output.toString());
+    System.out.println(course.getName()
+        + ". Количество студентов:"
+        + course.getStudentsCount());
   }
 
   private static void getTeachers(Session session) {
@@ -112,5 +177,40 @@ public class Main {
 
     //выводим всех учителей с врзрастом и зарплатой
     teachers.forEach(System.out::println);
+  }
+
+  private static void showExampleOfEntitiesConnections(Session session) {
+    //получаем сущность типа Course, с ID = 3
+    Course course = session.get(Course.class, 3);
+
+    //выводим имя курса
+    System.out.println(course.getName());
+
+    //выводим список студенов, подписанных на данный курс
+    //, используя связь @OneToMany в сущности Course
+    course.getSubscriptions()
+        .forEach(s -> System.out.println(" - " + s.getStudent().getName()));
+  }
+
+  private static void eraseLinkedPurchaseList(Session session) {
+
+    //инициализируем CriteriaBuilder(сборщик критерия)
+    CriteriaBuilder builder = session.getCriteriaBuilder();
+
+    //инициализируем CriteriaDelete(удалятор) из CriteriaBuilder
+    CriteriaDelete<LinkedPurchase> criteriaDelete = builder
+        .createCriteriaDelete(LinkedPurchase.class);
+
+    //инициализируем Root
+    //(БЕЗ НЕГО ТРАНЗАКЦИЯ НЕ РАБОТАЕТ: UPDATE/DELETE criteria must name root entity)
+    Root<LinkedPurchase> root = criteriaDelete.from(LinkedPurchase.class);
+
+    //начинаем/открываем транзакцию
+    Transaction transaction = session.beginTransaction();
+
+    session.createQuery(criteriaDelete).executeUpdate();
+
+    //проводим транзакцию
+    transaction.commit();
   }
 }
