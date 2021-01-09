@@ -28,33 +28,38 @@ public class BankTest extends TestCase {
 
     long expected = balancesStart.stream().mapToLong(Long::longValue).sum();
 
-    //стартуем 60 потоков, которые переводят 500 со счёта "0004" на счёт "0001"
+    //стартуем 95 потоков, которые переводят 1 с рандомно выбранного счёта
+    //на другой рандомно выбранный счёт, 1000 раз
     //, и выводят баланс этих счетов после транзакции
-    for (int i = 0; i < 60; i++) {
+    for (int i = 0; i < 95; i++) {
       new Thread(() -> {
-        bank.transfer("0004", "0001", 500);
-        System.out.println("Thread_500_4-1: " + bank.getBalance("0004")
-            + " " + bank.getBalance("0001"));
+        String from = "000" + ((int) (Math.random() * 4) + 1);
+        String to = "000" + ((int) (Math.random() * 4) + 1);
+
+        for (int j = 0; j < 1000; j++) {
+          bank.transfer(from, to, 1);
+          System.out.println(Thread.currentThread().getName() + "_"
+              + from + "-" + to + ": " + bank.getBalance(from)
+              + " " + bank.getBalance(to));
+        }
       }).start();
     }
 
-    //стартуем 35 потоков, которые переводят 20000 со счёта "0001" на счёт "0002"
+    //стартуем 5 (5% от общего числа) потоков, которые переводят 51000
+    //с рандомно выбранного счёта
+    //на другой рандомно выбранный счёт, 10 раз
     //, и выводят баланс этих счетов после транзакции
-    for (int i = 0; i < 35; i++) {
-      new Thread(() -> {
-        bank.transfer("0001", "0002", 20000);
-        System.out.println("Thread_2000_1-2: " + bank.getBalance("0001")
-            + " " + bank.getBalance("0002"));
-      }).start();
-    }
-
-    //стартуем 5 потоков, которые переводят 51000(! c проверкой Службой Бехзопасности)
-    //со счёта "0004" на счёт "0001", и выводят баланс этих счетов после транзакции
     for (int i = 0; i < 5; i++) {
       new Thread(() -> {
-        bank.transfer("0002", "0003", 51000);
-        System.out.println("Thread_51000_2-3: " + bank.getBalance("0002")
-            + " " + bank.getBalance("0003"));
+        String from = "000" + ((int) (Math.random() * 4) + 1);
+        String to = "000" + ((int) (Math.random() * 4) + 1);
+
+        for (int j = 0; j < 10; j++) {
+          bank.transfer(from, to, 51000);
+          System.out.println(Thread.currentThread().getName() + "_"
+              + from + "-" + to + ": " + bank.getBalance(from)
+              + " " + bank.getBalance(to));
+        }
       }).start();
     }
 
