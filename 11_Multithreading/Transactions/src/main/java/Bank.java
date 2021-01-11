@@ -4,8 +4,10 @@ import lombok.Getter;
 
 public class Bank {
 
-  //шаблон номера "нулевого" счёта, для его исключения (константа)
-  //(логически неправильно иметь в наличии счёт с номером "0000")
+  //маска номера счёта (константа)
+  private static final String MASK_OF_NUMBER = "\\d{1,4}";
+
+  //шаблон номера счёта, и образец "нулевого" счёта для его исключения (константа)
   private static final String NULL_NUM_ACC = "0000";
 
   //порог суммы транзакции, для подключения Службы Безопасности,
@@ -34,83 +36,47 @@ public class Bank {
   //, если понадобиться в дальнейшем
   public boolean transfer(String fromAccountNum, String toAccountNum, long amount) {
 
-    //проверка существования счёта списания
-    boolean checkFromAccount = accounts.containsKey(fromAccountNum);
-
-    //проверка существования счёта зачисления
-    boolean checkToAccount = accounts.containsKey(toAccountNum);
-
-    //суммарная проверка первых трёх условий
-    boolean isPossible = checkFromAccount && checkToAccount;
-
-    //если условие isPossible не выполняется, то метод прерывается
-    if (!isPossible) {
+    //проверяем корректность данных для проведения транзакции
+    if (!transferIsPossible(fromAccountNum, toAccountNum, amount)) {
       return false;
     }
 
-    //получаем аккаунт списания
+    //получаем счёт списания
     Account from = accounts.get(fromAccountNum);
 
-    //получаем аккаунт зачисления
+    //получаем счёт зачисления
     Account to = accounts.get(toAccountNum);
 
-    //проверка isNotNull и isNotEquals
-    if (from == null || to == null || from.equals(to)) {
-      return false;
-    }
+    //сравниваем номера счетов для задания очерёдности синхронизации
+    Account lowSyncAccount = compareAccNumbers(fromAccountNum, toAccountNum) ? from : to;
+    Account topSyncAccount = lowSyncAccount.equals(from) ? to : from;
 
-    //маркер успешности операции
-    //, для выхода из цикла попыток
-    boolean result = false;
+    //синхронизируемся по счетам в заданной последовательности
+    synchronized (lowSyncAccount) {
+      synchronized (topSyncAccount) {
 
-    //цикл попыток выолнения транзакции
-    //, для ожидания работы конкурирующего потока
-    while (!result) {
-
-      //попытка занять монитор from
-      //, если не получилось - следующий проход цикла
-      if (from.getLock().tryLock()) {
-
-        //попытка занять монитор to
-        //, если не получилось - освобождаем монитор from
-        //, и следующий проход цикла
-        if (to.getLock().tryLock()) {
-          //здесь мониторы from и to захвачены
-          //, и сними теперь поток может спокойно работать
-
-          //пробуем сделать списание с from
-          //, если успешно, то
-          if (from.writeOff(amount)) {
-
-            //пробуем сделать зачисление на to
-            //, если НЕ успешно, то
-            if (!to.deposit(amount)) {
-
-              //делаем зачисление обратно на from
-              //, и возвращаем false (инвертированный результат
-              //обратного зачисления на from - он будет true)
-              return !from.deposit(amount);
-            }
-
-            //проверка суммы для Службы Безопасности
-            if (amount > THRESHOLD) {
-              try {
-                //проверка транзакции Службой Безопасности
-                from.setBlocked(isFraud(fromAccountNum, toAccountNum, amount));
-                to.setBlocked(from.isBlocked());
-              } catch (InterruptedException e) {
-                e.printStackTrace();
-              }
-            }
-          }
-          //освобождаем монитор to
-          to.getLock().unlock();
-
-          //меняем маркер выхода из цикла
-          result = true;
+        //проверяем возможность проведения транзакции
+        if (from.isBlocked() || to.isBlocked() || amount > from.getMoney()) {
+          return false;
         }
-        //освобождаем монитор from
-        from.getLock().unlock();
+
+        //списываем сумму со счёта from
+        from.setMoney(from.getMoney() - amount);
+
+        //зачисляем сумму на счёт to
+        to.setMoney(to.getMoney() + amount);
+
+        //проверка суммы для Службы Безопасности
+        if (amount > THRESHOLD) {
+          try {
+
+            //проверка транзакции Службой Безопасности
+            from.setBlocked(isFraud(fromAccountNum, toAccountNum, amount));
+            to.setBlocked(from.isBlocked());
+          } catch (InterruptedException e) {
+            e.printStackTrace();
+          }
+        }
       }
     }
 
@@ -135,15 +101,64 @@ public class Bank {
   }
 
   //Метод добавления счёта в коллекцию accounts
-  public synchronized void addAccount(Account account) {
+  public void addAccount(Account account, String accNumber) {
 
-    //проверяем корректность номера счёта
-    if (!account.getAccNumber().equals(NULL_NUM_ACC)
-        && !accounts.containsKey(account.getAccNumber())) {
+    //проверяем и форматируем номер счёта
+    if (accNumber.matches(MASK_OF_NUMBER)) {
+      accNumber = NULL_NUM_ACC
+          .substring(0, NULL_NUM_ACC.length() - accNumber.length())
+          + accNumber;
 
-      //добавляем счёт в коллекцию
-      accounts.put(account.getAccNumber(), account);
+      //синхронизируемся по коллекции accounts
+      synchronized (accounts) {
 
+        //проверяем возможность добавления счёта в коллекцию
+        if (account != null && !accNumber.equals(NULL_NUM_ACC)
+            && !accounts.containsKey(accNumber) && !(account.getMoney() < 0)) {
+
+          //задаём номер счёта
+          account.setAccNumber(accNumber);
+
+          //добавляем счёт в коллекцию
+          accounts.put(account.getAccNumber(), account);
+        }
+      }
     }
+  }
+
+  //Проверка корректности данных для проведения транзакции
+  private boolean transferIsPossible(String fromAccountNum, String toAccountNum
+      , long amount) {
+
+    //проверяем наличие счетов в коллеции, и корректность суммы
+    if (isAllAccountsExist(fromAccountNum, toAccountNum) && amount > 0) {
+      Account from = accounts.get(fromAccountNum);
+      Account to = accounts.get(toAccountNum);
+
+      //проверяем счета на EQUALS и возвращаем результат (счета не совпадают - OK)
+      return !from.equals(to);
+    }
+
+    return false;
+  }
+
+  //Проверка существования счёта в коллекции, по номеру
+  private boolean isAccountExist(String accNumber) {
+    return accounts.containsKey(accNumber);
+  }
+
+  //Проверка существования счетов в коллекции, по номерам
+  private boolean isAllAccountsExist(String... accNumbers) {
+    for (String accNumber : accNumbers) {
+      if (!isAccountExist(accNumber)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  //Сравнение номеров счетов
+  private boolean compareAccNumbers(String fromAccNum, String toAccNum) {
+    return fromAccNum.compareTo(toAccNum) > 0;
   }
 }

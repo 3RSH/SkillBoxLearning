@@ -15,7 +15,9 @@ public class BankTest extends TestCase {
 
     //добавляем 4-е счёта в коллекцию
     for (int i = 0; i < 5; i++) {
-      bank.addAccount(new Account(String.valueOf(i), 500000));
+      Account account = new Account();
+      account.setMoney(500000);
+      bank.addAccount(account, String.valueOf(i));
     }
   }
 
@@ -77,17 +79,9 @@ public class BankTest extends TestCase {
     long actual = balancesEnd.stream().mapToLong(Long::longValue).sum();
 
     //выводим балансы счетов, с указанием статусов их блокировки
-    System.out.println("0001 " + bank.getBalance("0001") + " "
-        + bank.getAccounts().get("0001").isBlocked());
-
-    System.out.println("0002 " + bank.getBalance("0002") + " "
-        + bank.getAccounts().get("0002").isBlocked());
-
-    System.out.println("0003 " + bank.getBalance("0003") + " "
-        + bank.getAccounts().get("0003").isBlocked());
-
-    System.out.println("0004 " + bank.getBalance("0004") + " "
-        + bank.getAccounts().get("0004").isBlocked());
+    bank.getAccounts().forEach((num, account) -> System.out.println(num
+        + " " + bank.getBalance(num) + " "
+        + account.isBlocked()));
 
     //сравниваем начальный баланс банка с конечным
     assertEquals(expected, actual);
