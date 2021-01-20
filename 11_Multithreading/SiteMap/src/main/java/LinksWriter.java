@@ -5,11 +5,24 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.RecursiveAction;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 public class LinksWriter extends RecursiveAction {
+
+  //инициализация Логгера
+  private static final Logger LOGGER = LogManager.getLogger(Main.class);
+
+  //инициализация маркеров для Логгера
+  private static final Marker EXCEPTION_MARKER = MarkerManager.getMarker("EXCEPTION");
+  private static final Marker TREAD_INFO_MARKER = MarkerManager
+      .getMarker("TREAD_INFO");
 
   //переменная проверки домена ссылки
   private final String domain;
@@ -33,24 +46,24 @@ public class LinksWriter extends RecursiveAction {
     links.add(url);
 
     //мониторинг работы потоков
-    System.out.println(Thread.currentThread().getName()
-        + ": всего ссылок найдено " + links.size());
+    LOGGER.info(TREAD_INFO_MARKER, Thread.currentThread().getName()
+            + ": всего ссылок найдено " + links.size());
 
     //прерываем поток для избежания блокировки сайтом
     try {
       Thread.sleep(200);
     } catch (InterruptedException e) {
-      e.printStackTrace();
+      LOGGER.info(EXCEPTION_MARKER, "Перехвачено исключение: {}",
+          e.toString());
     }
-
-    //список для сбора рекурсивных подзадач
-    List<LinksWriter> tasks = new ArrayList<>();
 
     //получаем список ссылок со страницы
     //, фильтруем их по отсутствию в массиве сбора ссылок
     //, и заполняем список рекурсивных подзадач
-    getLinks(url).stream().filter(l -> !links.contains(l))
-        .forEach(l -> tasks.add(new LinksWriter(domain, l, links)));
+    List<LinksWriter> tasks = getLinks(url).stream()
+        .filter(Predicate.not(links::contains))
+        .map(l -> new LinksWriter(domain, l, links))
+        .collect(Collectors.toList());
 
     //запускаем список подзадач и ждём окончания их работы
     ForkJoinTask.invokeAll(tasks);
@@ -64,7 +77,8 @@ public class LinksWriter extends RecursiveAction {
       //получаем страницу по ссылке
       doc = Jsoup.connect(url).get();
     } catch (IOException e) {
-      e.printStackTrace();
+      LOGGER.info(EXCEPTION_MARKER, "Перехвачено исключение: {}",
+          e.toString());
     }
 
     //проверка страницы на null
