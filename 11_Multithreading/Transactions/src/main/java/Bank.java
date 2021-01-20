@@ -48,8 +48,8 @@ public class Bank {
     Account to = accounts.get(toAccountNum);
 
     //сравниваем номера счетов для задания очерёдности синхронизации
-    Account lowSyncAccount = compareAccNumbers(fromAccountNum, toAccountNum) ? from : to;
-    Account topSyncAccount = lowSyncAccount.equals(from) ? to : from;
+    Object lowSyncAccount = compareAccNumbers(fromAccountNum, toAccountNum) ? from : to;
+    Object topSyncAccount = lowSyncAccount.equals(from) ? to : from;
 
     //синхронизируемся по счетам в заданной последовательности
     synchronized (lowSyncAccount) {
