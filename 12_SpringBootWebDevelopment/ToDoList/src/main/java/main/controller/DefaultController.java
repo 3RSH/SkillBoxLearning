@@ -1,4 +1,4 @@
-package main;
+package main.controller;
 
 import java.util.Date;
 import org.springframework.web.bind.annotation.RequestMapping;

@@ -1,16 +1,19 @@
-package main;
+package main.repository;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-import response.ToDo;
+import main.model.ToDo;
+import org.springframework.stereotype.Service;
 
-public class Storage {
+@Service
+public class Storage implements DoingsRepository {
 
   private static int currentId = 1;
   private static ConcurrentHashMap<Integer, ToDo> doings = new ConcurrentHashMap<Integer, ToDo>();
 
-  public static int addToDo(ToDo toDo) {
+  @Override
+  public int addToDo(ToDo toDo) {
     int id = currentId++;
     toDo.setId(id);
     toDo.setComplete(false);
@@ -18,20 +21,23 @@ public class Storage {
     return id;
   }
 
-  public static ToDo getToDo(int toDoId) {
+  @Override
+  public ToDo getToDo(int toDoId) {
     if (doings.containsKey(toDoId)) {
       return doings.get(toDoId);
     }
     return null;
   }
 
-  public static List<ToDo> getAllDoings() {
+  @Override
+  public List<ToDo> getAllDoings() {
     ArrayList<ToDo> toDoList = new ArrayList<>();
     toDoList.addAll(doings.values());
     return toDoList;
   }
 
-  public static ToDo completeToDo(int toDoId) {
+  @Override
+  public ToDo completeToDo(int toDoId) {
     if (doings.containsKey(toDoId)) {
       doings.get(toDoId).setComplete(true);
       return doings.get(toDoId);
@@ -39,11 +45,13 @@ public class Storage {
     return null;
   }
 
-  public static void removeToDo(int toDoId) {
+  @Override
+  public void removeToDo(int toDoId) {
     doings.remove(toDoId);
   }
 
-  public static void clearDoings() {
+  @Override
+  public void clearDoings() {
     doings.clear();
     currentId = 1;
   }
