@@ -13,18 +13,6 @@ public class ToDoServiceImpl implements ToDoService {
   @Autowired
   private Storage doingsRepository;
 
-  public List<ToDo> searchByName(String name) {
-    List<ToDo> doings = new ArrayList<>();
-
-    for (ToDo toDo : this.list()) {
-      if (toDo.getName().contains(name)) {
-        doings.add(toDo);
-      }
-    }
-
-    return doings;
-  }
-
   @Override
   public int add(ToDo toDo) {
     return doingsRepository.addToDo(toDo);
@@ -55,4 +43,8 @@ public class ToDoServiceImpl implements ToDoService {
     doingsRepository.clearDoings();
   }
 
+  @Override
+  public List<ToDo> searchByName(String name) {
+    return doingsRepository.searchByName(name);
+  }
 }

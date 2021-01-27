@@ -17,4 +17,5 @@ public interface DoingsRepository {
 
   void clearDoings();
 
+  List<ToDo> searchByName(String name);
 }

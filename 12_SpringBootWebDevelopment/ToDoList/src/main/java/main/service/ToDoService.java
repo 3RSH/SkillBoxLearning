@@ -17,4 +17,5 @@ public interface ToDoService {
 
   void removeAll();
 
+  List<ToDo> searchByName(String name);
 }

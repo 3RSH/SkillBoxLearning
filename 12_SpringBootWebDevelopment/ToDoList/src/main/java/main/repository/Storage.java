@@ -55,4 +55,17 @@ public class Storage implements DoingsRepository {
     doings.clear();
     currentId = 1;
   }
+
+  @Override
+  public List<ToDo> searchByName(String name) {
+    List<ToDo> resultDoings = new ArrayList<>();
+
+    for (ToDo toDo : this.doings.values()) {
+      if (toDo.getName().contains(name)) {
+        resultDoings.add(toDo);
+      }
+    }
+
+    return resultDoings;
+  }
 }
