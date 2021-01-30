@@ -9,6 +9,6 @@ public class DefaultController {
 
   @RequestMapping("/")
   public String index() {
-    return ("ToDoList project: " + new Date()).toString();
+    return ("ToDoList project: " + new Date().toString());
   }
 }
