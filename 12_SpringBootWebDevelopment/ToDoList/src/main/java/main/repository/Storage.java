@@ -3,6 +3,7 @@ package main.repository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import main.model.ToDo;
 import org.springframework.stereotype.Service;
 
@@ -31,9 +32,7 @@ public class Storage implements DoingsRepository {
 
   @Override
   public List<ToDo> getAllDoings() {
-    ArrayList<ToDo> toDoList = new ArrayList<>();
-    toDoList.addAll(doings.values());
-    return toDoList;
+    return new ArrayList<>(doings.values());
   }
 
   @Override
@@ -58,14 +57,9 @@ public class Storage implements DoingsRepository {
 
   @Override
   public List<ToDo> searchByName(String name) {
-    List<ToDo> resultDoings = new ArrayList<>();
-
-    for (ToDo toDo : this.doings.values()) {
-      if (toDo.getName().contains(name)) {
-        resultDoings.add(toDo);
-      }
-    }
-
-    return resultDoings;
+    return doings.values()
+        .stream()
+        .filter(toDo -> toDo.getName().contains(name))
+        .collect(Collectors.toList());
   }
 }
