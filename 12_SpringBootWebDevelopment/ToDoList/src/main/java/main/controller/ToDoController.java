@@ -69,8 +69,6 @@ public class ToDoController {
   public ResponseEntity searchByName(String name) {
     List<ToDo> doings = service.searchByName(name);
 
-    return doings.size() != 0
-        ? new ResponseEntity(doings, HttpStatus.OK)
-        : ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+    return new ResponseEntity(doings, HttpStatus.OK);
   }
 }

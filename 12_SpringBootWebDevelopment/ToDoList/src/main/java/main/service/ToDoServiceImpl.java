@@ -1,10 +1,8 @@
 package main.service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import main.model.ToDo;
-import main.repository.MySqlDoingsRepository;
+import main.repository.MysqlStorage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,57 +10,44 @@ import org.springframework.stereotype.Service;
 public class ToDoServiceImpl implements ToDoService {
 
   @Autowired
-  private MySqlDoingsRepository doingsRepository;
+  private final MysqlStorage doingsRepository;
+
+  public ToDoServiceImpl(MysqlStorage doingsRepository) {
+    this.doingsRepository = doingsRepository;
+  }
 
   @Override
   public int add(ToDo toDo) {
-    return doingsRepository.save(toDo).getId();
+    return doingsRepository.addToDo(toDo);
   }
 
   @Override
   public ToDo get(int id) {
-    Optional<ToDo> toDo = doingsRepository.findById(id);
-    return toDo.orElse(null);
+    return doingsRepository.getToDo(id);
   }
 
   @Override
   public List<ToDo> list() {
-    List<ToDo> doings = new ArrayList<>();
-    doingsRepository.findAll().forEach(doings::add);
-    return doings;
+    return doingsRepository.getAllDoings();
   }
 
   @Override
   public ToDo doComplete(int id) {
-    Optional<ToDo> toDo = doingsRepository.findById(id);
-
-    if (toDo.isPresent()) {
-      toDo.get().setComplete(true);
-      doingsRepository.save(toDo.get());
-    }
-
-    return toDo.orElse(null);
+    return doingsRepository.completeToDo(id);
   }
 
   @Override
   public void remove(int id) {
-    doingsRepository.deleteById(id);
+    doingsRepository.removeToDo(id);
   }
 
   @Override
   public void removeAll() {
-    doingsRepository.deleteAll();
+    doingsRepository.clearDoings();
   }
 
   @Override
   public List<ToDo> searchByName(String name) {
-    List<ToDo> doings = new ArrayList<>();
-    doingsRepository.findAll().forEach(toDo -> {
-      if (toDo.getName().contains(name)) {
-        doings.add(toDo);
-      }
-    });
-
-    return doings;
+    return doingsRepository.searchByName(name);
   }
 }
