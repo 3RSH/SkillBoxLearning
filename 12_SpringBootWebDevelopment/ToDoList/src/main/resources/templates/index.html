@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
   <title>ToDo List</title>
@@ -17,13 +17,25 @@
     <button id="save-todo">Сохранить</button>
   </form>
 </div>
-<h1>Список дел</h1>
+<h1>Список дел (<span th:text="${count}"></span>)</h1>
 <button id="show-add-todo-form">Добавить дело</button>
 <hr>
 <button id="clear-todo-list">Очистить список дел</button>
 <br><br>
 <div id="todo-list">
+  <div th:each="todo : ${doings}">
+    <h4><span th:text="${todo.id}"></span>.
+      <span th:text="${todo.name}"></span>
+      <button id="complete-todo" th:attr="value=${todo.id}" th:text="Выполнить">
+      </button>
+      <button id="delete-todo" th:attr="value=${todo.id}" th:text="Удалить">
+      </button>
+    </h4>
+    Статус:
+    <span th:if="${todo.complete}">Выполнено</span>
+    <span th:if="!${todo.complete}">Не выполнено</span>
 
+  </div>
 </div>
 </body>
 </html>

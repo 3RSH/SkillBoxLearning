@@ -23,12 +23,12 @@ $(function(){
         return 'Не выполнено';
     };
 
-    //Загузка дел в список страницы
-    $.get('/doings/', function(response) {
-        for(i in response) {
-            appendTodo(response[i]);
-        }
-    });
+//    //Загузка дел в список страницы
+//    $.get('/doings/', function(response) {
+//        for(i in response) {
+//            appendTodo(response[i]);
+//        }
+//    });
 
     //Обработка нажатия кнопки добавления дела
     $('#show-add-todo-form').click(function() {
@@ -59,8 +59,7 @@ $(function(){
                 for(i in dataArray) {
                     todo[dataArray[i]['name']] = dataArray[i]['value'];
                 }
-
-                appendTodo(todo);
+                window.location.reload();
             }
         });
         return false;
