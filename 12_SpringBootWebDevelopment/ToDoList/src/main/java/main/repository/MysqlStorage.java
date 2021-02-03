@@ -7,7 +7,7 @@ import main.model.ToDo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-@Service
+@Service("MysqlStorage")
 public class MysqlStorage implements DoingsRepository {
 
   @Autowired
