@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import main.model.ToDo;
 import main.repository.MySqlDoingsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,7 +13,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class DefaultController {
 
   @Autowired
-  MySqlDoingsRepository sqlRepository;
+  private MySqlDoingsRepository sqlRepository;
+
+  @Value("${version}")
+  private String appVersion;
 
   @RequestMapping("/")
   public String index(Model model) {
@@ -24,6 +28,7 @@ public class DefaultController {
 
     model.addAttribute("doings", doings);
     model.addAttribute("count", doings.size());
+    model.addAttribute("version", appVersion);
 
     return "index";
   }
