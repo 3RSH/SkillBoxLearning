@@ -3,17 +3,14 @@ package main.service;
 import java.util.List;
 import main.model.ToDo;
 import main.repository.DoingsRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ToDoServiceImpl implements ToDoService {
 
-  @Autowired
-  @Qualifier("MysqlStorage")
   private final DoingsRepository doingsRepository;
-
+  
   public ToDoServiceImpl(@Qualifier("MysqlStorage")
       DoingsRepository doingsRepository) {
     this.doingsRepository = doingsRepository;
