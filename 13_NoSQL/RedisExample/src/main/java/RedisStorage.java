@@ -1,5 +1,3 @@
-import java.util.List;
-import java.util.stream.Collectors;
 import org.redisson.Redisson;
 import org.redisson.api.RKeys;
 import org.redisson.api.RScoredSortedSet;
@@ -56,20 +54,5 @@ public class RedisStorage {
 
     //ZRANGE USERS 0 0
     return users.first();
-  }
-
-  //Получение элемента в ScoredSortedSet, соответствующего запросу
-  String getUserById(String user_id) {
-
-    //Получаем список из всех элементов ScoredSortedSet
-    //ZRANGE USERS 0 -1
-    //, находим в нём требуемый элемент, и кладём его в List
-    List<String> result = users
-        .valueRange(Double.NEGATIVE_INFINITY, true, Double.POSITIVE_INFINITY, true)
-        .stream().filter(s -> s.equals(user_id)).collect(Collectors.toList());
-
-    return result.size() != 0
-        ? result.get(0)
-        : "";
   }
 }

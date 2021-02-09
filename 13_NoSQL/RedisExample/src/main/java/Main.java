@@ -28,7 +28,7 @@ public class Main {
     //рабочий цикл
     while (true) {
       if (cycleCount != paymentMarker) {
-        action(redis);
+        regularAction(redis);
       } else {
         paidAction(redis);
       }
@@ -55,14 +55,14 @@ public class Main {
   }
 
   //Обычное действие
-  private static void action(RedisStorage redis) {
+  private static void regularAction(RedisStorage redis) {
     System.out.printf(STATUS, redis.getFirstUserId());
     redis.addUser(redis.getFirstUserId());
   }
 
   //Платное действие
   private static void paidAction(RedisStorage redis) {
-    String user = redis.getUserById(paidUser);
-    System.out.printf(PAYMENT + STATUS, user, user);
+    System.out.printf(PAYMENT + STATUS, paidUser, paidUser);
+    redis.addUser(paidUser);
   }
 }
