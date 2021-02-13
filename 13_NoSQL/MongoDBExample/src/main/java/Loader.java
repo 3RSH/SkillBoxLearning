@@ -16,10 +16,12 @@ public class Loader {
 
   private static final String CSV_FILE = "13_NoSQL/MongoDBExample/src/main/resources/mongo.csv";
 
-  private static final String QUERY_1 = "Общее количество студентов в базе: ";
-  private static final String QUERY_2 = "Количество студентов старше 40 лет: ";
-  private static final String QUERY_3 = "Имя самого молодого студента: ";
-  private static final String QUERY_4 = "Список курсов самого старого студента: ";
+  private static final String QUERY_COUNT_STUDENTS = "Общее количество студентов в базе: ";
+  private static final String QUERY_COUNT_STUDENTS_OVER_40_YO
+      = "Количество студентов старше 40 лет: ";
+  private static final String QUERY_YOUNGEST_STUDENT_NAME = "Имя самого молодого студента: ";
+  private static final String QUERY_COURSES_OF_OLDEST_STUDENT
+      = "Список курсов самого старого студента: ";
 
   public static void main(String[] args) {
 
@@ -45,7 +47,7 @@ public class Loader {
       MongoCollection<Document> collection = database.getCollection("students");
 
       //ЗАПРОС: db.students.count()
-      System.out.println(QUERY_1 + collection.countDocuments());
+      System.out.println(QUERY_COUNT_STUDENTS + collection.countDocuments());
 
       //ЗАПРОС: db.students.find({"age" : { $gt: 40}}).count()
       BasicDBObject query = new BasicDBObject();
@@ -59,19 +61,19 @@ public class Loader {
         cursor.next();
       }
 
-      System.out.println(QUERY_2 + i);
+      System.out.println(QUERY_COUNT_STUDENTS_OVER_40_YO + i);
 
       //ЗАПРОС: db.students.find({}, {age: 0, courses: 0}).sort({age: 1}).limit(1)
       query = new BasicDBObject();
       query.put("age", 1);
       Document student = collection.find().sort(query).first();
-      System.out.println(QUERY_3 + student.get("name"));
+      System.out.println(QUERY_YOUNGEST_STUDENT_NAME + student.get("name"));
 
       //ЗАПРОС: db.students.find({}, {name: 0, age: 0}).sort({age: -1}).limit(1)
       query = new BasicDBObject();
       query.put("age", -1);
       student = collection.find().sort(query).first();
-      System.out.println(QUERY_4 + student.get("courses"));
+      System.out.println(QUERY_COURSES_OF_OLDEST_STUDENT + student.get("courses"));
     }
   }
 
