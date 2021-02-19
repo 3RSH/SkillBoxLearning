@@ -30,7 +30,8 @@ public class Loader {
   }
 
   private static void startDB() {
-    try (MongoClient mongoClient = new MongoClient("127.0.0.1", 27017)) {
+
+    try (MongoClient mongoClient = getMongoClient()) {
 
       MongoDatabase database = mongoClient.getDatabase("local");
       MongoCollection<Document> stores = database.getCollection("stores");
@@ -67,7 +68,7 @@ public class Loader {
   }
 
   private static String addStore(String name) {
-    try (MongoClient mongoClient = new MongoClient("127.0.0.1", 27017)) {
+    try (MongoClient mongoClient = getMongoClient()) {
       MongoDatabase database = mongoClient.getDatabase("local");
       MongoCollection<Document> collection = database.getCollection("stores");
 
@@ -125,7 +126,7 @@ public class Loader {
   }
 
   private static String addGoods(String name, int price) {
-    try (MongoClient mongoClient = new MongoClient("127.0.0.1", 27017)) {
+    try (MongoClient mongoClient = getMongoClient()) {
       MongoDatabase database = mongoClient.getDatabase("local");
       MongoCollection<Document> collection = database.getCollection("goods");
 
@@ -155,7 +156,7 @@ public class Loader {
     String storeName = getCommandArgs(data);
     String goodsName = data.substring(0, data.indexOf(' '));
 
-    try (MongoClient mongoClient = new MongoClient("127.0.0.1", 27017)) {
+    try (MongoClient mongoClient = getMongoClient()) {
       MongoDatabase database = mongoClient.getDatabase("local");
       MongoCollection<Document> storesCollection = database.getCollection("stores");
       MongoCollection<Document> goodsCollection = database.getCollection("goods");
@@ -200,7 +201,7 @@ public class Loader {
   private static String getGoodsStatistic() {
     StringBuilder statistic = new StringBuilder();
 
-    try (MongoClient mongoClient = new MongoClient("127.0.0.1", 27017)) {
+    try (MongoClient mongoClient = getMongoClient()) {
       MongoDatabase database = mongoClient.getDatabase("local");
       MongoCollection<Document> stores = database.getCollection("stores");
       MongoCollection<Document> goods = database.getCollection("goods");
@@ -366,5 +367,9 @@ public class Loader {
     output.delete(output.length() - 1, output.length());
 
     return output.toString();
+  }
+
+  private static MongoClient getMongoClient() {
+    return new MongoClient("127.0.0.1", 27017);
   }
 }
