@@ -1,4 +1,7 @@
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Loader {
@@ -12,8 +15,11 @@ public class Loader {
 
     for (int regionCode = 1; regionCode < 100; regionCode++) {
 
+      String regionStr = padNumber(regionCode, 2);
+      
       for (int number = 1; number < 1000; number++) {
 
+        String numberStr = padNumber(number, 3);
         StringBuilder builder = new StringBuilder();
 
         for (char firstLetter : letters) {
@@ -23,10 +29,10 @@ public class Loader {
             for (char thirdLetter : letters) {
 
               builder.append(firstLetter)
-                  .append(padNumber(number, 3))
+                  .append(numberStr)
                   .append(secondLetter)
                   .append(thirdLetter)
-                  .append(padNumber(regionCode, 2))
+                  .append(regionStr)
                   .append("\n");
             }
           }
@@ -36,6 +42,8 @@ public class Loader {
       }
     }
 
+    //Вывод номеров в несколько файлов из нескольких потоков(4-е потока, для примера)
+
     List<NumberGenerator> threads = new ArrayList<>();
 
     for (int i = 0; i < 4; i++) {
@@ -44,9 +52,6 @@ public class Loader {
 
     for (NumberGenerator nGen : threads) {
       nGen.start();
-    }
-
-    for (NumberGenerator nGen : threads) {
       nGen.join();
     }
 
