@@ -1,15 +1,16 @@
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
 
-public class NumberGenerator extends Thread {
+public class NumberGenerator implements Callable<List<String>> {
 
-  private String path = "14_Performance/CarNumberGenerator/res/numbers#num.txt";
+  private final int regionCode;
 
-  public NumberGenerator(int index) {
-    this.path = path.replaceFirst("#num", String.valueOf(index));
+  public NumberGenerator(int regionCode) {
+    this.regionCode = regionCode;
   }
 
-  private static String padNumber(int number, int numberLength) {
+  private String padNumber(int number, int numberLength) {
     String numberStr = String.valueOf(number);
     int padSize = numberLength - numberStr.length();
 
@@ -19,44 +20,40 @@ public class NumberGenerator extends Thread {
   }
 
   @Override
-  public void run() {
+  public List<String> call() {
+
+    List<String> numbersAreas = new ArrayList<>();
+    StringBuilder builder = new StringBuilder();
 
     char[] letters = {'У', 'К', 'Е', 'Н', 'Х', 'В', 'А', 'Р', 'О', 'С', 'М', 'Т'};
 
-    try (PrintWriter writer = new PrintWriter(path)) {
+    String regionStr = padNumber(regionCode, 2);
 
-      for (int regionCode = 1; regionCode < 100; regionCode++) {
+    for (int number = 1; number < 1000; number++) {
 
-        String regionStr = padNumber(regionCode, 2);
+      String numberStr = padNumber(number, 3);
 
-        for (int number = 1; number < 1000; number++) {
+      for (char firstLetter : letters) {
 
-          String numberStr = padNumber(number, 3);
-          StringBuilder builder = new StringBuilder();
+        for (char secondLetter : letters) {
 
-          for (char firstLetter : letters) {
+          for (char thirdLetter : letters) {
 
-            for (char secondLetter : letters) {
+            builder.append(firstLetter)
+                .append(numberStr)
+                .append(secondLetter)
+                .append(thirdLetter)
+                .append(regionStr)
+                .append("\n");
 
-              for (char thirdLetter : letters) {
-
-                builder.append(firstLetter)
-                    .append(numberStr)
-                    .append(secondLetter)
-                    .append(thirdLetter)
-                    .append(regionStr)
-                    .append("\n");
-              }
-            }
           }
-
-          writer.write(builder.toString());
         }
       }
 
-      writer.flush();
-    } catch (FileNotFoundException e) {
-      e.printStackTrace();
+      numbersAreas.add(builder.toString());
+      builder.setLength(0);
     }
+
+    return numbersAreas;
   }
 }
