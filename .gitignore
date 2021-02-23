@@ -203,3 +203,6 @@ $RECYCLE.BIN/
 # Projects results
 09_FilesAndNetwork/DocParser/images/JavaIO/
 09_FilesAndNetwork/DocParser/images/JavaNIO/
+
+#Projects resourses
+14_Performance/VoteAnalyzer/res/*.xml

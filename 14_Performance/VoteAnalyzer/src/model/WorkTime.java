@@ -1,3 +1,5 @@
+package model;
+
 import java.util.Date;
 import java.util.TreeSet;
 
@@ -6,7 +8,7 @@ public class WorkTime
     private TreeSet<TimePeriod> periods;
 
     /**
-     * Set of TimePeriod objects
+     * Set of model.TimePeriod objects
      */
     public WorkTime()
     {

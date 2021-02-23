@@ -1,3 +1,7 @@
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import model.Voter;
+import model.WorkTime;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -20,26 +24,41 @@ public class Loader
 
     public static void main(String[] args) throws Exception
     {
-        String fileName = "res/data-1M.xml";
+        long usageMem = getUsageRAM();
+        String fileName = "14_Performance/VoteAnalyzer/res/data-18M.xml";
 
-        parseFile(fileName);
+        //DOM-parse
+//        parseFile(fileName);
+//
+//        //Printing results
+//        System.out.println("Voting station work times: ");
+//        for(Integer votingStation : voteStationWorkTimes.keySet())
+//        {
+//            WorkTime workTime = voteStationWorkTimes.get(votingStation);
+//            System.out.println("\t" + votingStation + " - " + workTime);
+//        }
+//
+//        System.out.println("Duplicated voters: ");
+//        for(Voter voter : voterCounts.keySet())
+//        {
+//            Integer count = voterCounts.get(voter);
+//            if(count > 1) {
+//                System.out.println("\t" + voter + " - " + count);
+//            }
+//        }
 
-        //Printing results
-        System.out.println("Voting station work times: ");
-        for(Integer votingStation : voteStationWorkTimes.keySet())
-        {
-            WorkTime workTime = voteStationWorkTimes.get(votingStation);
-            System.out.println("\t" + votingStation + " - " + workTime);
-        }
+        //SAX-parse
+        SAXParserFactory saxFactory = SAXParserFactory.newInstance();
+        SAXParser saxParser = saxFactory.newSAXParser();
+        XMLHandler saxHandler = new XMLHandler();
 
-        System.out.println("Duplicated voters: ");
-        for(Voter voter : voterCounts.keySet())
-        {
-            Integer count = voterCounts.get(voter);
-            if(count > 1) {
-                System.out.println("\t" + voter + " - " + count);
-            }
-        }
+        saxParser.parse(new File(fileName), saxHandler);
+
+        saxHandler.printVoteStationWorkTimes();
+        saxHandler.printDuplicatedVoters();
+
+        System.out.println("==============================================================");
+        System.out.println("Usage RAM: " + (getUsageRAM() - usageMem)/1000000 + " Mb");
     }
 
     private static void parseFile(String fileName) throws Exception
@@ -89,5 +108,10 @@ public class Loader
             }
             workTime.addVisitTime(time.getTime());
         }
+    }
+
+    private static long getUsageRAM() {
+
+        return Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
     }
 }
