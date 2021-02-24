@@ -1,5 +1,4 @@
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import model.Voter;
 import model.WorkTime;
@@ -8,12 +7,12 @@ import org.xml.sax.helpers.DefaultHandler;
 
 public class XMLHandler extends DefaultHandler {
 
-  private static final SimpleDateFormat birthDayFormat = new SimpleDateFormat("yyyy.MM.dd");
-  private static final SimpleDateFormat visitDateFormat
+  private static final SimpleDateFormat BIRTH_DAY_FORMAT = new SimpleDateFormat("yyyy.MM.dd");
+  private static final SimpleDateFormat VISIT_DATE_FORMAT
       = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
 
-  private final HashMap<Voter, Integer> voterCounts;
-  private final HashMap<Integer, WorkTime> voteStationWorkTimes;
+  private final HashMap<Voter, Short> voterCounts;
+  private final HashMap<Short, WorkTime> voteStationWorkTimes;
   private Voter voter;
 
   public XMLHandler() {
@@ -28,16 +27,16 @@ public class XMLHandler extends DefaultHandler {
     try {
       if (qName.equals("voter") && voter == null) {
 
-        Date birthDay = birthDayFormat.parse(attributes.getValue("birthDay"));
+        long birthDay = BIRTH_DAY_FORMAT.parse(attributes.getValue("birthDay")).getTime();
         voter = new Voter(attributes.getValue("name"), birthDay);
 
       } else if (qName.equals("visit") && voter != null) {
 
-        int count = voterCounts.getOrDefault(voter, 0);
-        voterCounts.put(voter, count + 1);
+        short count = voterCounts.getOrDefault(voter, (short) 0);
+        voterCounts.put(voter, ++count);
 
-        Integer station = Integer.parseInt(attributes.getValue("station"));
-        Date visitDate = visitDateFormat.parse(attributes.getValue("time"));
+        short station = Short.parseShort(attributes.getValue("station"));
+        long visitDate = VISIT_DATE_FORMAT.parse(attributes.getValue("time")).getTime();
         WorkTime workTime = voteStationWorkTimes.get(station);
 
         if (workTime == null) {
@@ -46,7 +45,7 @@ public class XMLHandler extends DefaultHandler {
           voteStationWorkTimes.put(station, workTime);
         }
 
-        workTime.addVisitTime(visitDate.getTime());
+        workTime.addVisitTime(visitDate);
       }
 
     } catch (Exception e) {
@@ -66,28 +65,32 @@ public class XMLHandler extends DefaultHandler {
 
   public void printVoteStationWorkTimes() {
 
-    System.out.println("Voting station work times: ");
+    StringBuilder output = new StringBuilder().append("Voting station work times: \n");
 
-    for (Integer votingStation : voteStationWorkTimes.keySet()) {
+    for (short votingStation : voteStationWorkTimes.keySet()) {
 
       WorkTime workTime = voteStationWorkTimes.get(votingStation);
-      System.out.println("\t" + votingStation + " - " + workTime);
+      output.append("\t").append(votingStation).append(" - ").append(workTime).append("\n");
     }
+
+    System.out.print(output);
   }
 
 
   public void printDuplicatedVoters() {
 
-    System.out.println("Duplicated voters: ");
+    StringBuilder output = new StringBuilder().append("Duplicated voters: \n");
 
     for (Voter voter : voterCounts.keySet()) {
 
-      int count = voterCounts.get(voter);
+      short count = voterCounts.get(voter);
 
       if (count > 1) {
 
-        System.out.println("\t" + voter.toString() + " - " + count);
+        output.append("\t").append(voter.toString()).append(" - ").append(count).append("\n");
       }
     }
+
+    System.out.print(output);
   }
 }

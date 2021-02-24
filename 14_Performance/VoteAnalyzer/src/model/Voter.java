@@ -1,49 +1,42 @@
 package model;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
-public class Voter
-{
-    private String name;
-    private Date birthDay;
+public class Voter {
 
-    public Voter(String name, Date birthDay)
-    {
-        this.name = name;
-        this.birthDay = birthDay;
+  private String name;
+  private long birthDay;
+
+  public Voter(String name, long birthDay) {
+    this.name = name;
+    this.birthDay = birthDay;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (!this.getClass().equals(obj.getClass())) {
+      return false;
     }
 
-    @Override
-    public boolean equals(Object obj)
-    {
-        Voter voter = (Voter) obj;
-        return name.equals(voter.name) && birthDay.equals(voter.birthDay);
-    }
+    Voter voter = (Voter) obj;
+    return name.equals(voter.name) && (birthDay == voter.birthDay);
+  }
 
-    @Override
-    public int hashCode()
-    {
-        long code = name.hashCode() + birthDay.hashCode();
-        while(code > Integer.MAX_VALUE) {
-            code = code/10;
-        }
-        return (int) code;
-    }
+  @Override
+  public int hashCode() {
+    return name.hashCode() + Long.hashCode(birthDay);
+  }
 
-    public String toString()
-    {
-        SimpleDateFormat dayFormat = new SimpleDateFormat("yyyy.MM.dd");
-        return name + " (" + dayFormat.format(birthDay) + ")";
-    }
+  public String toString() {
+    SimpleDateFormat dayFormat = new SimpleDateFormat(" (yyyy.MM.dd)");
+    return name + dayFormat.format(birthDay);
+  }
 
-    public String getName()
-    {
-        return name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public Date getBirthDay()
-    {
-        return birthDay;
-    }
+  public long getBirthDay() {
+    return birthDay;
+  }
 }
