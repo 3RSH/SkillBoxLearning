@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 
 public class Loader {
 
-  private static final String PATH = "14_Performance/CarNumberGenerator/res/numbers#num.txt";
+  private static final String PATH = "14_Performance/CarNumberGenerator/res/numbers.txt";
 
   public static void main(String[] args) throws Exception {
 
@@ -28,20 +28,20 @@ public class Loader {
     executorService.shutdown();
     executorService.awaitTermination(1, TimeUnit.HOURS);
 
-    //Для чистоты эксперимента, будем формировать 4-е файла, как было ранее
-    for (int i = 0; i < 4; i++) {
+    System.out.println("Время генерации номеров: " + (System.currentTimeMillis() - start) + " ms");
+    start = System.currentTimeMillis();
 
-      try (PrintWriter writer
-          = new PrintWriter(PATH.replaceFirst("#num", String.valueOf(i)))) {
+    //Запись номеров в файл
+    try (PrintWriter writer
+        = new PrintWriter(PATH)) {
 
-        for (var future : futures) {
-          future.get().forEach(writer::write);
-        }
-
-        writer.flush();
+      for (var future : futures) {
+        future.get().forEach(writer::write);
       }
+
+      writer.flush();
     }
 
-    System.out.println((System.currentTimeMillis() - start) + " ms");
+    System.out.println("Время записи в файл: " + (System.currentTimeMillis() - start) + " ms");
   }
 }
