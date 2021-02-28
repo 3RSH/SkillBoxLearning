@@ -5,9 +5,9 @@ import java.text.SimpleDateFormat;
 public class Voter {
 
   private String name;
-  private long birthDay;
+  private String birthDay;
 
-  public Voter(String name, long birthDay) {
+  public Voter(String name, String birthDay) {
     this.name = name;
     this.birthDay = birthDay;
   }
@@ -19,12 +19,12 @@ public class Voter {
     }
 
     Voter voter = (Voter) obj;
-    return name.equals(voter.name) && (birthDay == voter.birthDay);
+    return name.equals(voter.name) && (birthDay.equals(voter.birthDay));
   }
 
   @Override
   public int hashCode() {
-    return name.hashCode() + Long.hashCode(birthDay);
+    return name.hashCode() + birthDay.hashCode();
   }
 
   public String toString() {
@@ -36,7 +36,7 @@ public class Voter {
     return name;
   }
 
-  public long getBirthDay() {
+  public String getBirthDay() {
     return birthDay;
   }
 }
