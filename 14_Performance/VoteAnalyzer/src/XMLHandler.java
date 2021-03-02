@@ -17,12 +17,11 @@ public class XMLHandler extends DefaultHandler {
 
       } else if (qName.equals("visit") && voter != null) {
         counter++;
-
         DBConnection.countVoter(voter.getName(), voter.getBirthDay());
-        DBConnection.countWorkTimeStation(Short.parseShort(attributes.getValue("station"))
+        DBConnection.countStationVisit(Short.parseShort(attributes.getValue("station"))
             , attributes.getValue("time"));
 
-        if (counter == 10000) {
+        if (counter == 100000) {
           DBConnection.executeMultiInsert();
           counter = 0;
         }

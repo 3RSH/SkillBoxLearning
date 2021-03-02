@@ -5,15 +5,40 @@ import javax.xml.parsers.SAXParserFactory;
 
 public class Loader {
 
+  private static final String FILE_NAME = "14_Performance/VoteAnalyzer/res/data-1572M.xml";
+
   public static void main(String[] args) {
-    String fileName = "14_Performance/VoteAnalyzer/res/data-1572M.xml";
 
     long start = System.currentTimeMillis();
-    parseFile(fileName);
-    System.out.println("Parsing duration: " + (System.currentTimeMillis() - start) + " ms");
+    startDB();
+    System.out.println("InitDB duration: "
+        + (System.currentTimeMillis() - start) + " ms");
+
+    start = System.currentTimeMillis();
+    parseFile(FILE_NAME);
+    System.out.println("Parsing duration: "
+        + (System.currentTimeMillis() - start) + " ms");
+
+    start = System.currentTimeMillis();
+    indexingVoters();
+    System.out.println("Voters indexing duration: "
+        + (System.currentTimeMillis() - start) + " ms");
+
+    start = System.currentTimeMillis();
+    createResultTables();
+    System.out.println("Result tables getting duration: "
+        + (System.currentTimeMillis() - start) + " ms");
 
     printVoteStationWorkTimes();
     printDuplicatedVoters();
+  }
+
+  private static void startDB() {
+    try {
+      DBConnection.getConnection();
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
   }
 
   private static void parseFile(String fileName) {
@@ -29,9 +54,26 @@ public class Loader {
     }
   }
 
+  private static void indexingVoters() {
+    try {
+      DBConnection.createIndexVoter();
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+  }
+
+  private static void createResultTables() {
+    try {
+      DBConnection.insertDuplicateVoters();
+      DBConnection.insertStationsWorkTimes();
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+  }
+
   private static void printDuplicatedVoters() {
     try {
-      System.out.println("Duplicated voters:");
+      System.out.println("\nDuplicated voters:");
       DBConnection.printVoterCounts();
     } catch (SQLException e) {
       e.printStackTrace();
