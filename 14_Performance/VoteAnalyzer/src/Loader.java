@@ -20,13 +20,13 @@ public class Loader {
         + (System.currentTimeMillis() - start) + " ms");
 
     start = System.currentTimeMillis();
-    indexingVoters();
-    System.out.println("Voters indexing duration: "
+    findDuplicateVoters();
+    System.out.println("Duplicate voters searching duration: "
         + (System.currentTimeMillis() - start) + " ms");
 
     start = System.currentTimeMillis();
-    createResultTables();
-    System.out.println("Result tables getting duration: "
+    calculateStationsWorkTimes();
+    System.out.println("Station's work times calculation duration: "
         + (System.currentTimeMillis() - start) + " ms");
 
     printVoteStationWorkTimes();
@@ -54,18 +54,17 @@ public class Loader {
     }
   }
 
-  private static void indexingVoters() {
+  private static void findDuplicateVoters() {
     try {
-      DBConnection.createIndexVoter();
+      DBConnection.createDuplicateVotersTab();
     } catch (SQLException e) {
       e.printStackTrace();
     }
   }
 
-  private static void createResultTables() {
+  private static void calculateStationsWorkTimes() {
     try {
-      DBConnection.insertDuplicateVoters();
-      DBConnection.insertStationsWorkTimes();
+      DBConnection.createStationsWorkTimesTab();
     } catch (SQLException e) {
       e.printStackTrace();
     }

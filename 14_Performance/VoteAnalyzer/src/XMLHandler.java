@@ -5,8 +5,10 @@ import org.xml.sax.helpers.DefaultHandler;
 
 public class XMLHandler extends DefaultHandler {
 
+  private final long startTime = System.currentTimeMillis();
+
   private Voter voter;
-  private int counter = 0;
+  private int counter;
 
   @Override
   public void startElement(String uri, String localName, String qName, Attributes attributes) {
@@ -21,9 +23,10 @@ public class XMLHandler extends DefaultHandler {
         DBConnection.countStationVisit(Short.parseShort(attributes.getValue("station"))
             , attributes.getValue("time"));
 
-        if (counter == 100000) {
+        if (counter % 100000 == 0) {
+          System.out.printf("%d - %.1f s%n", counter,
+              (System.currentTimeMillis() - startTime) / 1000.0);
           DBConnection.executeMultiInsert();
-          counter = 0;
         }
       }
     } catch (SQLException e) {
